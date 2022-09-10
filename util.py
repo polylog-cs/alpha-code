@@ -45,6 +45,33 @@ example_edges = [
     (13,14)
 ]
 
+
+def rooted_position(pos_root = ORIGIN, sh = 0.5*RIGHT, SH = 1*RIGHT, H = 1*DOWN):
+
+    positions = {}
+
+    positions[1] = pos_root
+
+    positions[2] = positions[1] - SH    + H
+    positions[9] = positions[1] + SH    + H
+
+
+    positions[3] = positions[2] - sh    + H
+    positions[4] = positions[2] + H
+    positions[5] = positions[2] + sh    + H
+    positions[10]= positions[9] - sh    + H
+    positions[11]= positions[9] + sh    + H
+
+    positions[6] = positions[5] - sh    + H
+    positions[7] = positions[5] + H
+    positions[8] = positions[5] + sh    + H
+
+    positions[12]= positions[11] + H
+    positions[13]= positions[12] + H
+    positions[14]= positions[13] + H
+
+    return positions
+
 ############### 
 
 
