@@ -1,85 +1,86 @@
 import random
 import math
-import numpy as np
 from manim import *
 from solarized import *
-from functools import cmp_to_key
-import copy
-import itertools
-import string
+
 
 ############### GENERATING SOUNDS
 
 def random_click_file():
-	return f"audio/click/click_{random.randint(0, 3)}.wav"
+    return f"audio/click/click_{random.randint(0, 3)}.wav"
 
 
 def random_pop_file():
-	return f"audio/pop/pop_{random.randint(0, 6)}.wav"
+    return f"audio/pop/pop_{random.randint(0, 6)}.wav"
 
 
 def random_whoosh_file():
-	return f"audio/whoosh/whoosh_{random.randint(0, 3)}.wav"
+    return f"audio/whoosh/whoosh_{random.randint(0, 3)}.wav"
+
+
 whoosh_gain = -8
 # use as: 
 # self.add_sound(random_whoosh_file(), time_offset = 0.15, gain = whoosh_gain)
 
 
-############### 
+###############
 
 
 example_vertices = list(range(1, 15))
 example_edges = [
-    (1,2),
-    (2,3),
-    (2,4),
-    (2,5),
-    (5,6),
-    (5,7),
-    (5,8),
-    (1,9),
-    (9,10),
-    (9,11),
-    (11,12),
-    (12,13),
-    (13,14)
+    (1, 2),
+    (2, 3),
+    (2, 4),
+    (2, 5),
+    (5, 6),
+    (5, 7),
+    (5, 8),
+    (1, 9),
+    (9, 10),
+    (9, 11),
+    (11, 12),
+    (12, 13),
+    (13, 14)
 ]
 
 
-def rooted_position(pos_root = ORIGIN, sh = 0.5*RIGHT, SH = 1*RIGHT, H = 1*DOWN):
-
+def rooted_position(pos_root=ORIGIN, sh=0.5 * RIGHT, SH=1 * RIGHT, H=1 * DOWN):
     positions = {}
 
     positions[1] = pos_root
 
-    positions[2] = positions[1] - SH    + H
-    positions[9] = positions[1] + SH    + H
+    positions[2] = positions[1] - SH + H
+    positions[9] = positions[1] + SH + H
 
-
-    positions[3] = positions[2] - sh    + H
+    positions[3] = positions[2] - sh + H
     positions[4] = positions[2] + H
-    positions[5] = positions[2] + sh    + H
-    positions[10]= positions[9] - sh    + H
-    positions[11]= positions[9] + sh    + H
+    positions[5] = positions[2] + sh + H
+    positions[10] = positions[9] - sh + H
+    positions[11] = positions[9] + sh + H
 
-    positions[6] = positions[5] - sh    + H
+    positions[6] = positions[5] - sh + H
     positions[7] = positions[5] + H
-    positions[8] = positions[5] + sh    + H
+    positions[8] = positions[5] + sh + H
 
-    positions[12]= positions[11] + H
-    positions[13]= positions[12] + H
-    positions[14]= positions[13] + H
+    positions[12] = positions[11] + H
+    positions[13] = positions[12] + H
+    positions[14] = positions[13] + H
 
     return positions
 
-############### 
+
+###############
+
+
+def flatten(lst):
+    return [item for sublist in lst for item in sublist]
 
 
 class Tree(Graph):
     def __init__(self, *args, label_class=MathTex, **kwargs):
         # Hack to fix "labels=True" when TeX is not available
         # (uses `Text` instead of `MathTex`)
-        if kwargs.get("labels") == True: #sorryjako
+        if kwargs.get("labels"):
             # Assumes vertices are positional arg
             assert "vertices" not in kwargs
             labels = dict(
@@ -88,6 +89,9 @@ class Tree(Graph):
             kwargs["labels"] = labels
 
         super().__init__(*args, **kwargs)
+
+    def root(self) -> int:
+        return min(self.vertices.keys())
 
     def get_adjacency_list(self):
         adj = dict([(v, []) for v in self.vertices])
@@ -102,20 +106,19 @@ class Tree(Graph):
         for u in self.vertices:
             pos_u = self[u].get_center()
             pos_u -= mid
-            new_layout[u] = np.array( \
-                (pos_u[0] * math.cos(theta) + pos_u[1] * math.sin(theta), \
-                pos_u[1] * math.cos(theta) - pos_u[0] * math.sin(theta), \
-                pos_u[2]))
+            new_layout[u] = np.array(
+                (pos_u[0] * math.cos(theta) + pos_u[1] * math.sin(theta),
+                 pos_u[1] * math.cos(theta) - pos_u[0] * math.sin(theta), pos_u[2]))
             new_layout[u] += mid
         self.change_layout(new_layout)
 
-    def bfs(self, start):
+    def bfs(self, start, condition=lambda x, y: True):
         adj = self.get_adjacency_list()
 
         res_vertices = [[start]]
         res_edges = [[]]
         res_parents = {start: None}
-        seen = set([start])
+        seen = {start}
 
         while True:
             cur_vertices = []
@@ -123,11 +126,11 @@ class Tree(Graph):
 
             for v1 in res_vertices[-1]:
                 for v2 in adj[v1]:
-                    if v2 not in seen:
+                    if v2 not in seen and condition(v1, v2):
                         cur_vertices.append(v2)
                         seen.add(v2)
-                        cur_edges.append((v1, v2))
                         res_parents[v2] = v1
+                        cur_edges.append((v1, v2))
 
             if cur_vertices:
                 res_vertices.append(cur_vertices)
@@ -191,3 +194,23 @@ class Tree(Graph):
 
         return self.set_colors(vertex_colors, edge_colors)
 
+    def remove_subtree(self, vertex: int):
+        vertices, edges, _ = self.bfs(vertex, lambda start, curr: start < curr)
+        flatten_vertices = flatten(vertices)
+        flatten_edges = flatten(edges)
+        self.remove_vertices(*flatten_vertices)
+        return Tree(
+            flatten_vertices,
+            flatten_edges,
+            layout="kamada_kawai",
+            layout_scale=3,
+            vertex_config={"radius": 0.2, "color": text_color},
+            labels=False,
+            edge_config={"color": text_color}
+        )
+
+    def add_subtree(self, tree, vertex: int):
+        self.add_vertices(*tree.vertices)
+        self.add_edges(*tree.edges)
+        root = tree.root()
+        self.add_edges((vertex, root))
