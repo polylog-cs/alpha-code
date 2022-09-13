@@ -1,32 +1,36 @@
+from random import randrange
 from util import *
 
 class Intro(Scene):
     def construct(self):
-        dalle_images = [
-            ImageMobject(path).scale(0.3)
-            for path in ["img/D4.png", "img/D3.png", "img/D1.png", "img/D2.png"]
-        ]
-        dalle_prompts = [
-            Tex(txt, color = GRAY).scale(0.3)
-            for txt in [
-                "A plate with pasta that form a brain as a 1960s poster",
-                "A programmer desperately trying to create a funny picture using artificial intelligence",
-                "A person standing next to a large tree with many leaves and buds in a vaporwave style",
-                "A logo suitable for a youtube channel about computer science",
-            ]
-        ]
 
-        Group(*dalle_images).arrange_in_grid(
-            rows = 2,
-            buff = 1
-        ).move_to(2*RIGHT)
-        for i in range(4):
-            dalle_prompts[i].next_to(dalle_images[i], DOWN)
+        #TODO kolize
+        num_img = 26
+        dalle_images = []
+        for i in range(num_img):
+            dalle_images.append(
+                ImageMobject("img/dalle/p{}.jpg".format(i+1)).scale_to_fit_width(2).move_to(
+                    random.choice([-4, -2, 0, 2, 4]) * RIGHT + random.choice([-2, 0, 2]) * UP
+                )
+            )
 
-        self.add(
-            *dalle_images,
-            *dalle_prompts
+        anims = []
+        for i in range(num_img):
+            anims.append(
+                Succession(
+                    FadeIn(dalle_images[i]),
+                    Wait(3),
+                    FadeOut(dalle_images[i])
+                )
+            )
+
+        self.play(
+            AnimationGroup(
+                *anims,
+                lag_ratio = 0.1
+            )
         )
+        self.wait()
 
 
 class Polylog(Scene):
@@ -47,7 +51,7 @@ class Polylog(Scene):
         self.wait()
 
         logo_dalle = ImageMobject("img/D2.png").scale(0.5).set_z_index(100)
-        logo_solarized = ImageMobject("img/logo-solarized.png").scale(0.17).shift(0.3*UP+0.05*LEFT)
+        logo_solarized = ImageMobject("img/logo-solarized.png").scale(0.034).shift(0.3*UP+0.05*LEFT)
         prompt_dalle = Tex(
             r"DALL$\cdot$E 2 on prompt: A logo suitable for a youtube channel about computer science", 
             color = GRAY
