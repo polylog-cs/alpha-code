@@ -36,6 +36,7 @@ GRAY = BASE00
 GREY = BASE00
 
 text_color = GRAY
+DALLE_ORANGE = r"#%02x%02x%02x" % (254, 145, 4)
 
 # whenever more colors are needed
 rainbow = [RED, MAGENTA, VIOLET, BLUE, CYAN, GREEN]

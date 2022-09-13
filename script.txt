@@ -1,0 +1,48 @@
+If you are like me, you are getting used to the fact that every few months, people come up with some new insane application of deep learning. You may have heard about GPT-3, the language model that you can have a conversation with, or DALL-E 2, the neural net that can create pretty images. But the neural net that shocked me the most this year is AlphaCode. 
+
+This is a neural net that can solve algorithmic problems of the type seen on competitive programming websites like CodeForces. Basically, in comes a text description of a coding problem together with a sample input and output, and out comes a C++ or a Python program solving that problem. 
+A lot of people have already covered AlphaCode from the AI perspective, but I think that to understand how good it actually is, it’s important to understand what is the level of problems it is capable of solving. 
+So, I had a go at one of the harder problems that the AI managed to solve. 
+
+Problem
+The problem I’ll be solving is called Buds Re-hanging. In this problem, we are given a tree, so a bunch of nodes connected by edges such that no edges form a cycle. 
+
+This tree is also rooted, so each node except the root has one parent node and possibly some children. The nodes that have no children are called leaves – let’s highlight them in green.
+So far, these are standard terms. In this problem specifically, we also need the concept of a bud. A bud is a node that’s not a root, has at least one child, and all its children are leaves. Let’s highlight all of these in blue.
+
+Now, in this coding problem, we’re given a tree and we’re allowed to manipulate it in the following way: we can take a bud and re-hang it and its children to another node of the tree. Notice that in this case, after we cut  this bud off the tree, this guy becomes a new bud, and after we put the bud back here, this guy stops being a leaf and also this is not a bud anymore. 
+
+And now the question is: You’re allowed to do these operations any number of times with any buds you choose. If you do the operations as cleverly as possible, what’s the lowest number of leaves the tree can have? For example, the number of leaves at the beginning is … You can see how it changes when we do the operations and the lowest we can get seems to be …
+
+There are examples in the problem statement to make this clearer. Let’s look at the first one: the tree looks like this. It has four leaves. We can then rehang this bud here… and this bud there… and we get a tree with two leaves, which is the correct answer.
+Also, because it is a programming competition, it is also important how large the input data is. You can see that the tree can have around 10^6 nodes, which means that our algorithm for computing the answer needs to have close to linear time complexity. 
+So, this is the problem. In a few seconds I will describe my attempt at solving the problem, but now I encourage you to pause the video and think about it for yourself. You now have the opportunity to see if you can match AlphaCode’s solving skills!
+
+Solution
+In competitive programming problems like these, it’s often useful to first play around with the problem and get a feeling for what the correct direction might be. Also, the sample inputs are often quite small and don’t give a lot of intuition about the solution. So what I did first was to draw an example tree that is not too simple. It looked roughly like the example we already saw 
+
+Then I tried to solve the problem manually for this tree. I noticed that if I take this bud and put it for example here, I get rid of one leaf, so that is good. Also, this guy now becomes a bud, so I can again hang it somewhere else and now the number of leaves drops down to 5. This turns out to be the smallest possible number, but at this point this was not clear at all.
+So I continued playing with the tree and for quite some time I did not have much of an idea about what was happening until I realized the following thing. Let’s look for example at this bud and circle it and its leaves. And then do some random operations. You can see that the bud and its leaves always stay together, they never separate.
+
+And that holds in general. I realized that I can imagine repeatedly cutting the buds from the tree like this. Now I draw the circle around each bud and put them back. If I now do some random bud-cutting operations, you see that the nodes in the same circle always stay together. 
+Notice that I also colored all of these nodes red, because those are the potential buds. Not all the red nodes are buds, only those that are currently at the bottom of the tree are actual buds. I also colored the rest of the nodes green, because those are the potential leaves. Again, not all green nodes are leaves, only those that are currently at the bottom of the tree are. 
+At this point, I actually kind of forgot that we want to minimize the number of leaves, but it still felt like I made a lot of progress just understanding how these rehanging operations work. Ok, so what does it mean that we want as few leaves as possible. Hm, first, only green nodes can be leaves, because all the red nodes have at least one child. So we can look at it differently and instead of minimizing the number of leaves we maximize the number of green nodes that are not leaves. That means we want as many as possible of these guys. These green nodes are not leaves, because they have at least one red child. 
+At this point I finally realized what was happening when I was manually trying to solve the problem. There I started by rehanging this bud, which decreased the number of leaves by one. The reason this worked is that this red node was not covering any green node. So after I took the bud off, the number of leaves did not increase. Then I used my red node to cover one green leaf. So the number of leaves decreased by one. But there was also this green node with two red children, so when I took this new bud off, I again did not create any new leaf. So I could use my bud to cover one more leaf. 
+And now it is clear that there is no better solution than having five leaves. That’s because in total we have 9 green nodes but only four red nodes. These four nodes can cover at most four green nodes, hence the smallest number of leaves we can hope for is the number of green leaves, which is 9, minus the number of red ones, which is 4, so it’s five. 
+Great! So can we always achieve this state where all the red nodes are fully utilized so that the number of leaves is only the number of green nodes minus the number of red nodes? It took me a while to figure it out but turns out we can! The solution I came up with was to start by disassembling the whole tree so that all buds are hanging below the root. Then, we can just stack them on top of each other like this. This way, every red node is covering a different green node, so we achieve the best possible bound. 
+Nice! So we have a solution. We simply code a program that first colors the nodes green and red so that the colors correspond to cutting the buds from our tree one by one. Then we return the number of green nodes - the number of red nodes as the answer. 
+
+Let’s just quickly test the program on the sample inputs and…
+
+Nooo, it is not correct. We actually gave a wrong answer already for this first tree from sample input. Hm, so what is the problem here. Let’s color the tree with green and red colors. Ok, the number of green - red nodes is 3, but the correct answer is 2. Aha, that makes sense, because one of the red nodes is the root of the tree, which is a kind of special case, because although this is a red node, we cannot use it to cover a green one, because by definition the root is never a bud. Ok, let’s just subtract one from the answer in case the root is red, keep our fingers crossed … and … nice, this time we were correct.  
+
+This is what I both love and hate about competitive programming. In the end your program speaks for itself. 
+
+Final Thoughts
+Ok, I hope that you enjoyed the problem but now let’s go back to AlphaCode. First, I want to repeat that this was one of the hardest problems that the AI managed to solve. Sometimes, the Alpha Code fails in entertaining ways on much easier problems. For instance, this is a much easier problem that AlphaCode couldn’t solve.
+
+Its solution contains this part: you can see how it just hard-codes the answer to the sample tests into its solution just to pass them. Obviously, that doesn’t generalize very well. Have a look at the website linked in the description - it shows more examples of the code generated by AlphaCode. I really like how you can actually see what part of the problem statement the neural net is paying attention to while it writes the code. 
+So I think that alphacode is absolutely amazing. I already got used to the fact that neural nets can do pretty well the stuff that we, people, can do without much thinking, like understanding images or parsing text, but what the AIs from the past few years can do goes beyond that. 
+*if you read Thinking, Fast and Slow, think of System 1 and System 2
+Solving problems like those that alphacode solves, or creating pictures that DALLE can create, this really requires some imagination and thought. You could see how I really needed to think hard when I was trying to solve the problem and even did not get it completely right on the first try!
+So I am super excited, and also freaked out by what comes next. But don’t worry, in the next few years before AI takes our jobs of explaining computer science topics, we will continue doing that for you. Bye! 

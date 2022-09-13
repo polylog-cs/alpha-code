@@ -29,7 +29,7 @@ whoosh_gain = -8
 ###############
 
 
-example_vertices = list(range(1, 15))
+example_vertices = list(range(1, 14))
 example_edges = [
     (1, 2),
     (2, 3),
@@ -43,7 +43,6 @@ example_edges = [
     (9, 11),
     (11, 12),
     (12, 13),
-    (13, 14)
 ]
 
 
@@ -337,3 +336,4 @@ class Tree(Graph):
             colours[vertex] = bud_colour
         self.set_colors(colours, None)
         pass
+
