@@ -80,12 +80,15 @@ def flatten(lst):
 
 
 class Forest():
-    def __init__(self, tree):
+    def __init__(self, tree, bud_colour=solarized.RED, leaf_colour=solarized.GREEN):
         self.trees = []
         self.trees.append(tree)
+        self.bud_colour = bud_colour
+        self.leaf_colour = leaf_colour
 
     def add(self, tree):
         tree.change_layout(rooted_position())
+        tree.pretty_colour(bud_colour=self.bud_colour, leaf_colour=self.leaf_colour)
         self.trees.append(tree)
 
     def remove(self, index: int):
@@ -101,7 +104,6 @@ class Forest():
         return new_tree
 
     def add_subtree_to_tree(self, subtree_index: int, tree_index: int, vertex: int):
-        print(len(self.trees))
         tree = self.trees[tree_index].add_subtree(self.trees[subtree_index], vertex)
         if subtree_index < tree_index:
             self.trees.pop(tree_index)
@@ -263,7 +265,7 @@ class Tree(Graph):
                 all_vertexes.append(v)
 
         for v in new_vertexes:
-            all_vertexes.append(v)
+            all_vertexes.append(v + vertex - root + 1)
 
         all_vertexes.sort()
 
@@ -271,10 +273,12 @@ class Tree(Graph):
         i = 0
         for v in all_vertexes:
             i += 1
-            if v < vertex + len(new_vertexes):
-                map_new_vertexes[v] = i
-            else:
+            if v > vertex + len(new_vertexes):
                 map_new_vertexes[v - len(new_vertexes)] = i
+            elif v > vertex:
+                map_new_vertexes[v - (vertex - root + 1)] = i
+            else:
+                map_new_vertexes[v] = i
             res_vertexes.append(i)
 
         for a, b in self.edges:
@@ -290,7 +294,6 @@ class Tree(Graph):
 
     def add_subtree(self, tree, vertex: int):
         vertices, edges = self.update_vertexes(vertex, tree.root(), tree.vertices, tree.edges)
-        print(*vertices, *edges)
 
         return Tree(
             vertices,
@@ -306,7 +309,7 @@ class Tree(Graph):
         adj = self.get_adjacency_list()
         res = set()
         for vertex in self.vertices:
-            if len(adj[vertex]) == 1:
+            if len(adj[vertex]) <= 1:
                 res.add(vertex)
         return res
 

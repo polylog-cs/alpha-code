@@ -18,9 +18,9 @@ class Explore(Scene):
             edge_config={"color": text_color}
         )
 
-        forest = Forest(example_tree)
+        forest = Forest(example_tree, solarized.BLUE, solarized.CYAN)
 
-        example_tree.add_updater(lambda x: x.pretty_colour(solarized.BLUE, solarized.CYAN))
+        example_tree.add_updater(lambda x: forest.pretty_colour(solarized.BLUE, solarized.CYAN))
 
         budCounter = Integer(0, color=RED).shift(3*UP)
         budCounter.add_updater(lambda x: x.set_value(forest.get_leaves_cnt()))
@@ -36,8 +36,8 @@ class Explore(Scene):
         )
         self.wait(2)
 
-        new_tree = forest.remove_subtree_from_tree(0, 5)
-        new_tree.add_updater(lambda x: x.pretty_colour(solarized.BLUE, solarized.CYAN))
+        new_tree = forest.remove_subtree_from_tree(0, 3)
+        new_tree.add_updater(lambda x: forest.pretty_colour(solarized.BLUE, solarized.CYAN))
         self.add(new_tree)
         self.remove(example_tree)
         self.add(example_tree)
@@ -48,8 +48,8 @@ class Explore(Scene):
         )
         self.wait(2)
 
-        tr = forest.add_subtree_to_tree(1, 0, 9)
-        tr.add_updater(lambda x: x.pretty_colour(solarized.BLUE, solarized.CYAN))
+        tr = forest.add_subtree_to_tree(1, 0, 2)
+        tr.add_updater(lambda x: forest.pretty_colour(solarized.BLUE, solarized.CYAN))
         self.remove(example_tree)
         self.remove(new_tree)
         self.add(tr)
