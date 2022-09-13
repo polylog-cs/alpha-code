@@ -1,6 +1,9 @@
 import random
 import math
 from manim import *
+from typing import Set
+
+import solarized
 from solarized import *
 
 
@@ -74,6 +77,44 @@ def rooted_position(pos_root=ORIGIN, sh=0.5 * RIGHT, SH=1 * RIGHT, H=1 * DOWN):
 
 def flatten(lst):
     return [item for sublist in lst for item in sublist]
+
+
+class Forest():
+    def __init__(self, tree):
+        self.trees = []
+        self.trees.append(tree)
+
+    def add(self, tree):
+        tree.change_layout(rooted_position())
+        self.trees.append(tree)
+
+    def remove(self, index: int):
+        self.trees.pop(index)
+
+    def get_leaves_cnt(self):
+        return sum(tree.get_leaves_cnt() for tree in self.trees)
+
+    def remove_subtree_from_tree(self, index: int, vertex: int):
+        new_tree = self.trees[index].remove_subtree(vertex)
+        self.trees.append(new_tree)
+        new_tree.change_layout(rooted_position())
+        return new_tree
+
+    def add_subtree_to_tree(self, subtree_index: int, tree_index: int, vertex: int):
+        print(len(self.trees))
+        tree = self.trees[tree_index].add_subtree(self.trees[subtree_index], vertex)
+        if subtree_index < tree_index:
+            self.trees.pop(tree_index)
+            self.trees.pop(subtree_index)
+        else:
+            self.trees.pop(subtree_index)
+            self.trees.pop(tree_index)
+        self.add(tree)
+        return tree
+
+    def pretty_colour(self, bud_colour=solarized.RED, leaf_colour=solarized.GREEN):
+        for tree in self.trees:
+            tree.pretty_colour(bud_colour, leaf_colour)
 
 
 class Tree(Graph):
@@ -209,8 +250,87 @@ class Tree(Graph):
             edge_config={"color": text_color}
         )
 
+    def update_vertexes(self, vertex: int, root: int, new_vertexes: [int], new_edges: [(int, int)]):
+        res_vertexes = []
+        res_edges = []
+
+        all_vertexes = []
+
+        for v in self.vertices:
+            if v > vertex:
+                all_vertexes.append(v + len(new_vertexes))
+            else:
+                all_vertexes.append(v)
+
+        for v in new_vertexes:
+            all_vertexes.append(v)
+
+        all_vertexes.sort()
+
+        map_new_vertexes = {}
+        i = 0
+        for v in all_vertexes:
+            i += 1
+            if v < vertex + len(new_vertexes):
+                map_new_vertexes[v] = i
+            else:
+                map_new_vertexes[v - len(new_vertexes)] = i
+            res_vertexes.append(i)
+
+        for a, b in self.edges:
+            res_edges.append((map_new_vertexes[a], map_new_vertexes[b]))
+
+        res_edges.append((map_new_vertexes[vertex], map_new_vertexes[root]))
+
+        for a, b in new_edges:
+            res_edges.append((map_new_vertexes[a], map_new_vertexes[b]))
+
+        return res_vertexes, res_edges
+
+
     def add_subtree(self, tree, vertex: int):
-        self.add_vertices(*tree.vertices)
-        self.add_edges(*tree.edges)
-        root = tree.root()
-        self.add_edges((vertex, root))
+        vertices, edges = self.update_vertexes(vertex, tree.root(), tree.vertices, tree.edges)
+        print(*vertices, *edges)
+
+        return Tree(
+            vertices,
+            edges,
+            layout="kamada_kawai",
+            layout_scale=3,
+            vertex_config={"radius": 0.2, "color": text_color},
+            labels=False,
+            edge_config={"color": text_color}
+        )
+
+    def get_leaves(self) -> Set[int]:
+        adj = self.get_adjacency_list()
+        res = set()
+        for vertex in self.vertices:
+            if len(adj[vertex]) == 1:
+                res.add(vertex)
+        return res
+
+    def get_buds(self) -> Set[int]:
+        adj = self.get_adjacency_list()
+        leaves = self.get_leaves()
+        res = set()
+
+        for vertex in self.vertices:
+            if vertex not in leaves and all(neighbour in leaves or neighbour < vertex for neighbour in adj[vertex]):
+                res.add(vertex)
+        return res
+
+    def get_leaves_cnt(self):
+        return len(self.get_leaves())
+
+    def get_buds_cnt(self):
+        return len(self.get_buds())
+
+    def pretty_colour(self, bud_colour=solarized.RED, leaf_colour=solarized.GREEN):
+        colours = {}
+        for vertex in self.get_leaves():
+            colours[vertex] = leaf_colour
+        for vertex in self.get_buds():
+            colours[vertex] = bud_colour
+        self.set_colors(colours, None)
+        pass
