@@ -1,6 +1,8 @@
 from random import randrange
 from util import *
 
+scene_width = 14.2
+
 class Intro(Scene):
     def construct(self):
 
@@ -31,7 +33,6 @@ class Intro(Scene):
             )
         )
         self.wait()
-
 
 class Polylog(Scene):
     def construct(self):
@@ -82,6 +83,151 @@ class Polylog(Scene):
             *[FadeOut(o) for o in self.mobjects]
         )
         self.wait()
+
+class ProblemStatement(Scene):
+    def construct(self):
+        # The problem I’ll be solving is called Buds Re-hanging. In this problem, we are given a tree, so a bunch of nodes connected by edges such that no edges form a cycle. 
+
+        statement = ImageMobject(
+            "img/statement.png",
+        ).scale_to_fit_width(scene_width/2.0).shift(scene_width/4 * LEFT + 8*DOWN)
+        statement_caption = Tex("Buds Re-hanging (Codeforces 1566E)", color = GRAY).scale(0.8).move_to(statement.get_center()).next_to(statement, UP)
+
+        self.play(
+            FadeIn(statement),
+            FadeIn(statement_caption)
+        )
+        self.wait()
+
+        tree_scale = 3
+        node_radius = 0.2
+
+        example_tree = Tree(
+            example_vertices,
+            example_edges,
+            layout="kamada_kawai",
+            layout_scale=tree_scale,
+            vertex_config={"radius": node_radius, "color": WHITE}, # for debugging
+            labels=True, # for debugging
+            edge_config={"color": text_color}
+        ).move_to(scene_width/4 * RIGHT)
+
+        self.play(
+            FadeIn(example_tree),
+        )
+        self.wait()
+
+
+
+        #This tree is also rooted, so each node except the root has one parent node and possibly some children. The nodes that have no children are called leaves – let’s highlight them in green.
+
+        highlight_box = Rectangle(
+            width = scene_width/2 - 0.5,
+            height = 0.8,
+            color = RED,
+        ).next_to(statement_caption, DOWN).shift(1.3*DOWN).set_z_index(100)
+
+        self.play(
+            FadeIn(highlight_box),
+        )
+
+        self.play(
+            example_tree.animate().change_layout(rooted_position(pos_root = scene_width/4*RIGHT + 2*UP)),
+            run_time=1
+        )
+        self.wait()
+
+        example_vertex = example_tree.vertices[2]
+        self.play(
+            example_vertex.animate().set_color(RED)
+        )
+        self.wait()
+
+        # parent
+        example_parent = example_tree.vertices[1]
+        edge_parent = Line(
+            start = example_vertex.get_center(),
+            end = example_parent.get_center(),
+            color = RED,
+        )
+        self.play(
+            Create(edge_parent),
+        )
+        self.play(
+            Circumscribe(example_parent, shape = Circle, color = RED)
+        )
+        self.play(
+            Uncreate(edge_parent)
+        )
+        self.wait()
+
+        #children
+        example_children = [
+            example_tree.vertices[3],
+            example_tree.vertices[4],
+            example_tree.vertices[5],
+        ]
+        edge_children = [
+            Line(
+                start = example_vertex.get_center(),
+                end = child.get_center(),
+                color = RED,
+            ) for child in example_children
+        ]
+        self.play(
+            *[Create(e) for e in edge_children],
+        )
+        self.play(
+            *[Circumscribe(child, shape = Circle, color = RED) for child in example_children]
+        )
+        self.play(
+            *[Uncreate(e) for e in edge_children],
+        )
+        self.wait()    
+        
+        # leaves
+        leaves = example_tree.get_leaves()
+        self.play(
+            *[example_tree.vertices[v].animate().set_color(GREEN) for v in leaves]
+        )
+        self.wait()
+
+        # So far, these are standard terms. In this problem specifically, we also need the concept of a bud. A bud is a node that’s not a root, has at least one child, and all its children are leaves. In other words, buds are basically the nodes that have only leaves as children but are not leaves themselves. I highlighted all of these in blue. 
+
+        highlight_box.generate_target()
+        highlight_box.target = Rectangle(
+            width = scene_width/2 - 0.5,
+            height = 1.4,
+            color = RED,
+        ).next_to(highlight_box, DOWN, buff = DEFAULT_MOBJECT_TO_MOBJECT_BUFFER/2.0)
+        self.play(
+            MoveToTarget(highlight_box),
+        )
+        self.wait()
+
+        arrow = Arrow(
+            start = ORIGIN,
+            end = ORIGIN + LEFT/2,
+            color = RED,
+        ).scale(3).move_to(3*LEFT + 0*DOWN)
+
+        self.play(
+            Create(arrow)
+        )
+        self.wait()
+        line_height = 0.2
+        for _ in range(2):
+            self.play(
+                arrow.animate().shift(line_height * DOWN)
+            )
+            self.wait()
+        self.play(
+            Uncreate(arrow)
+        )
+        self.wait()
+        
+
+
 
 class Explore(Scene):
     def construct(self):
