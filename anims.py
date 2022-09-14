@@ -350,17 +350,33 @@ class Explore(Scene):
         tree_scale = 3
         node_radius = 0.2
 
-        colour_function = lambda x: forest.pretty_colour(solarized.BLUE, solarized.CYAN)
+        # colour_function = lambda x: forest.pretty_colour(solarized.BLUE, solarized.CYAN)
 
         example_tree = Tree(
             example_vertices,
             example_edges,
             layout="kamada_kawai",
             layout_scale=tree_scale,
-            vertex_config={"radius": node_radius, "color": text_color},
-            labels=False,
+            vertex_config={"radius": node_radius, "color": WHITE},
+            labels=True,
             edge_config={"color": text_color}
         )
+
+        self.add(example_tree)
+        self.wait()
+
+        subtree = example_tree.remove_subtree(self, 2)
+        self.wait()
+
+        self.play(
+            subtree.animate().shift(2*LEFT)
+        )
+
+        example_tree.add_subtree(self, subtree, 10)
+        self.wait()
+
+        return 
+
 
         forest = Forest(example_tree, solarized.BLUE, solarized.CYAN)
 

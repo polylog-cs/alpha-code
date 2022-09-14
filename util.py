@@ -157,13 +157,20 @@ class Tree(Graph):
 
         super().__init__(*args, **kwargs)
 
-    def root(self) -> int:
+    def root_the_tree(self, root: int):
+        pass # create parent pointers
+
+    def root(self) -> int: # VR probably works now but rather have it as separate parameter
         return min(self.vertices.keys())
 
-    def sons(self, vertex: int) -> [int]:
+    def sons(self, vertex: int) -> [int]: # VR this will not hold after few rehangings
         res = [v for v in self.get_adjacency_list()[vertex] if v > vertex]
         res.sort()
         return res
+
+    def parent(self, vertex: int) -> [int]: # VR pls do properly
+        res = [v for v in self.get_adjacency_list()[vertex] if v < vertex]
+        return res[0]
 
     def get_largest_descendent(self, vertex: int) -> int:
         res = self.sons(vertex)
@@ -314,38 +321,73 @@ class Tree(Graph):
 
         return res_vertexes, res_edges
 
-    def add_subtree(self, tree, vertex: int, position: int):
-        vertices, edges = self.update_vertexes(vertex, position, tree.root(), tree.vertices, tree.edges)
+    def add_subtree(self, scene, subtree, vertex: int):
 
-        return Tree(
-            vertices,
-            edges,
-            layout="kamada_kawai",
-            layout_scale=3,
-            vertex_config={"radius": 0.2, "color": text_color},
-            labels=False,
-            edge_config={"color": text_color}
+        subtree_layout = {}
+        print(subtree.vertices)
+        for v in subtree.vertices:
+            subtree_layout[v] = subtree.vertices[v].get_center()
+
+        self.add_vertices(
+            *subtree.vertices,
+            positions = subtree_layout
         )
-        #print(*self.vertices, *self.edges)
-        #self.add_vertices(*tree.vertices)
-        #self.add_edges(*tree.edges)
-        #self.add_edges((vertex, tree.root()))
-        #print(*self.vertices, *self.edges)
+        self.add_edges(
+            *subtree.edges
+        )
 
-    def remove_subtree(self, vertex: int):
-        vertices, edges, _ = self.bfs(vertex, lambda start, curr: start < curr)
+        parent_edge = Line( 
+            start = subtree.vertices[subtree.root()].get_center(),
+            end = self.vertices[vertex].get_center(),
+            color = GRAY,            
+        )
+
+        scene.play(
+            Create(parent_edge)
+        )
+
+        # nothing should happen on the scene
+        scene.remove(self, subtree)
+        scene.add(self)
+
+
+    def remove_subtree(self, scene, vertex: int):
+        vertices, edges, _ = self.bfs(vertex, lambda start, curr: start < curr) # VR I guess it works now?
         flatten_vertices = flatten(vertices)
         flatten_edges = flatten(edges)
-        self.remove_vertices(*flatten_vertices)
-        return Tree(
+
+        parent_edge = Line(
+            start = self.vertices[vertex].get_center(),
+            end = self.vertices[self.parent(vertex)].get_center(),
+            color = GRAY,            
+        )
+
+        subtree_layout = {}
+        for v in flatten_vertices:
+            subtree_layout[v] = self.vertices[v].get_center()
+        
+        subtree = Tree(
             flatten_vertices,
             flatten_edges,
-            layout="kamada_kawai",
-            layout_scale=3,
+            layout=subtree_layout,
+            layout_scale=3, # !
             vertex_config={"radius": 0.2, "color": text_color},
             labels=False,
             edge_config={"color": text_color}
         )
+
+
+        # nothing should happen on the scene
+        self.remove_vertices(*flatten_vertices)
+        scene.remove(self)
+        scene.add(self, subtree, parent_edge)
+
+        # delete the parent edge
+        scene.play(
+            Uncreate(parent_edge)
+        )
+
+        return subtree
 
     def get_leaves(self) -> Set[int]:
         res = set()
