@@ -173,6 +173,16 @@ class Tree(Graph):
     def get_root(self) -> int:  # VR probably works now but rather have it as separate parameter
         return self.root
 
+    def get_descendents(self, vertex: int) -> [int]:
+        sons = self.sons(vertex)
+        if len(sons) == 0:
+            return [vertex]
+        res = []
+        for vertex in sons:
+            for descendent in self.get_descendents(vertex):
+                res.append(descendent)
+        return res
+
     def sons(self, vertex: int) -> [int]:
         res = [v for v in self.get_adjacency_list()[vertex] if v != self.parents[vertex]]
         return res
@@ -181,10 +191,9 @@ class Tree(Graph):
         return self.parents[vertex]
 
     def get_largest_descendent(self, vertex: int) -> int:
-        res = self.sons(vertex)
-        if len(res) == 0:
-            return vertex
-        return self.get_largest_descendent(res[len(res) - 1])
+        res = self.get_descendents()
+        res.sort()
+        return res[len(res) - 1]
 
     def get_adjacency_list(self):
         adj = dict([(v, []) for v in self.vertices])
@@ -351,6 +360,7 @@ class Tree(Graph):
         scene.play(
             Create(parent_edge)
         )
+        scene.remove(parent_edge)
         
         self.add_edges((vertex, subtree.get_root()))
         self.parents[subtree.get_root()] = vertex
@@ -364,7 +374,7 @@ class Tree(Graph):
         scene.add(self)
 
     def remove_subtree(self, scene, vertex: int):
-        vertices, edges, _ = self.bfs(vertex, lambda start, curr: start < curr)  # VR I guess it works now?
+        vertices, edges, _ = self.bfs(vertex, lambda start, curr: curr != self.parent(start))  # VR I guess it works now?
         flatten_vertices = flatten(vertices)
         flatten_edges = flatten(edges)
 
@@ -402,6 +412,10 @@ class Tree(Graph):
         return subtree
 
     def rehang_subtree(self, scene, v_from, v_to, new_pos, dir1, dir2):
+        print(*self.vertices)
+        print(*self.edges)
+        print(*self.parents.keys())
+        print(*self.parents.items())
 
         root_pos = self.vertices[v_from].get_center()
 
