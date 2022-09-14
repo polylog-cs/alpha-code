@@ -359,21 +359,50 @@ class Explore(Scene):
             layout_scale=tree_scale,
             vertex_config={"radius": node_radius, "color": WHITE},
             labels=True,
+            root=1,
             edge_config={"color": text_color}
         )
+        self.add(example_tree)
+
+        self.wait(2)
+
+        example_tree.pretty_colour()
+        self.wait()
 
         self.add(example_tree)
         self.wait()
 
-        subtree = example_tree.remove_subtree(self, 2)
-        self.wait()
+        subtree = example_tree.remove_subtree(self, 5)
+        subtree.pretty_colour()
+        subtree2 = example_tree.remove_subtree(self, 12)
+        subtree2.pretty_colour()
+        example_tree.pretty_colour()
+        self.wait(1)
 
         self.play(
-            subtree.animate().shift(2*LEFT)
+            subtree.animate().shift(2 * LEFT),
+            subtree2.animate().shift(2 * RIGHT)
         )
 
-        example_tree.add_subtree(self, subtree, 10)
-        self.wait()
+        subtree3 = example_tree.remove_subtree(self, 9)
+        subtree3.pretty_colour()
+        subtree4 = example_tree.remove_subtree(self, 2)
+        subtree4.pretty_colour()
+        example_tree.pretty_colour()
+        self.wait(1)
+
+        self.play(
+            subtree3.animate().shift(2*LEFT),
+            subtree4.animate().shift(2*RIGHT)
+        )
+
+        example_tree.add_subtree(self, subtree, 1)
+        example_tree.add_subtree(self, subtree2, 1)
+        example_tree.add_subtree(self, subtree3, 8)
+        example_tree.add_subtree(self, subtree4, 6)
+        example_tree.change_colours()
+        example_tree.pretty_colour()
+        self.wait(3)
 
         return 
 
