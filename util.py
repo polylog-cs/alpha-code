@@ -144,7 +144,8 @@ class Forest():
 
 
 class Tree(Graph):
-    def __init__(self, *args, label_class=MathTex, **kwargs):
+
+    def __init__(self, *args, root = None, label_class=MathTex, **kwargs):
         # Hack to fix "labels=True" when TeX is not available
         # (uses `Text` instead of `MathTex`)
         if kwargs.get("labels"):
@@ -154,6 +155,10 @@ class Tree(Graph):
                 (v, label_class(str(v), fill_color=BASE00).scale(0.7)) for v in args[0]
             )
             kwargs["labels"] = labels
+
+        # self.root = root
+        # if self.root != None:
+        #     self.parents = self.compute_parents()
 
         super().__init__(*args, **kwargs)
 
