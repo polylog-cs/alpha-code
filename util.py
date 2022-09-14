@@ -161,13 +161,14 @@ class Tree(Graph):
         super().__init__(*args, **kwargs)
         self.root = root
         self.parents = {root: None}
-        tmp = [root]
-        while len(tmp) > 0:
-            vertex = tmp.pop()
-            for neighbour in self.get_adjacency_list()[vertex]:
-                if neighbour not in self.parents.keys():
-                    self.parents[neighbour] = vertex
-                    tmp.append(neighbour)
+        if root != None:
+            tmp = [root]
+            while len(tmp) > 0:
+                vertex = tmp.pop()
+                for neighbour in self.get_adjacency_list()[vertex]:
+                    if neighbour not in self.parents.keys():
+                        self.parents[neighbour] = vertex
+                        tmp.append(neighbour)
 
     def get_root(self) -> int:  # VR probably works now but rather have it as separate parameter
         return self.root
@@ -341,19 +342,22 @@ class Tree(Graph):
         self.add_edges(
             *subtree.edges
         )
-        self.add_edges((vertex, subtree.get_root()))
-
-        self.parents[subtree.get_root()] = vertex
 
         parent_edge = Line(
             start=subtree.vertices[subtree.get_root()].get_center(),
             end=self.vertices[vertex].get_center(),
             color=GRAY,
         )
-
         scene.play(
             Create(parent_edge)
         )
+        
+        self.add_edges((vertex, subtree.get_root()))
+        self.parents[subtree.get_root()] = vertex
+
+
+
+
 
         # nothing should happen on the scene
         scene.remove(self, subtree)
@@ -396,6 +400,33 @@ class Tree(Graph):
         )
 
         return subtree
+
+    def rehang_subtree(self, scene, v_from, v_to, new_pos, dir1, dir2):
+
+        root_pos = self.vertices[v_from].get_center()
+
+        scene.play(
+            Flash(self.vertices[v_from], color = RED)
+        )
+
+        subtree = self.remove_subtree(scene, v_from)
+
+        curve = CubicBezier(
+            root_pos,
+            root_pos + dir1,
+            new_pos + dir2,
+            new_pos,
+        )
+        scene.add(curve)
+        curve.shift(subtree.get_center() - root_pos)
+
+        scene.play(
+            MoveAlongPath(subtree, curve)
+        )
+
+
+        self.add_subtree(scene, subtree, v_to)
+        scene.remove(curve)
 
     def get_leaves(self) -> Set[int]:
         res = set()

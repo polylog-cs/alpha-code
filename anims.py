@@ -87,6 +87,7 @@ class Polylog(Scene):
 
 class ProblemStatement(Scene):
     def construct(self):
+        self.next_section(skip_animations=True)
         # The problem I’ll be solving is called Buds Re-hanging. In this problem, we are given a tree, so a bunch of nodes connected by edges such that no edges form a cycle. 
 
         statement = ImageMobject(
@@ -110,7 +111,8 @@ class ProblemStatement(Scene):
             layout_scale=tree_scale,
             vertex_config={"radius": node_radius, "color": WHITE}, # for debugging
             labels=True, # for debugging
-            edge_config={"color": text_color}
+            edge_config={"color": text_color},
+            root = 1
         ).move_to(scene_width/4 * RIGHT)
 
         self.play(
@@ -229,6 +231,7 @@ class ProblemStatement(Scene):
         self.wait()
 
         #Now, we’re allowed to manipulate our tree it in the following way: we can take a bud and re-hang it and its children to another node of the tree. Notice that in this case, after we cut  this bud off the tree, this guy becomes a new bud, and after we put the bud back here, this guy stops being a leaf and also this is not a bud anymore. 
+        self.next_section(skip_animations = False)
 
         highlight_box.generate_target()
         highlight_box.target = Rectangle(
@@ -241,6 +244,37 @@ class ProblemStatement(Scene):
         )
         self.wait()
 
+        H = 1*DOWN
+
+        example_tree.rehang_subtree(
+            self,
+            5,
+            10,
+            example_tree.vertices[10].get_center() + H,
+            1 *DOWN,
+            1*LEFT + 1 * DOWN,
+        )
+
+        example_tree.rehang_subtree(
+            self,
+            12,
+            4,
+            example_tree.vertices[4].get_center() + H,
+            2 * DOWN,
+            2 * DOWN,
+        )
+
+        example_tree.rehang_subtree(
+            self,
+            5,
+            11,
+            example_tree.vertices[11].get_center() + H,
+            1 * DOWN,
+            1 * DOWN,
+        )
+
+        self.wait()
+        return
         #And now the question is: You’re allowed to do these operations any number of times with any buds you choose. If you do the operations as cleverly as possible, what’s the lowest number of leaves the tree can have? For example, the number of leaves at the beginning is 7. You can see how it changes when we do the operations and the lowest we can get seems to be 5.
 
         highlight_box.generate_target()
@@ -362,8 +396,55 @@ class Explore(Scene):
             root=1,
             edge_config={"color": text_color}
         )
+        example_tree.change_layout(rooted_position(pos_root = 2*UP))
         self.add(example_tree)
+        return
 
+        H = 1*DOWN
+        example_tree.rehang_subtree(
+            self,
+            5,
+            10,
+            example_tree.vertices[10].get_center() + H,
+            1 *DOWN,
+            1*LEFT + 1 * DOWN,
+        )
+
+        # v_from = 2
+        # v_to = 9
+        # new_pos = 2*LEFT
+        # dir1 = 1*RIGHT
+        # dir2 = 1*RIGHT
+        # scene = self
+
+        # curve = CubicBezier(
+        #     example_tree.vertices[v_from].get_center(),
+        #     example_tree.vertices[v_from].get_center() + dir1,
+        #     new_pos + dir2,
+        #     new_pos,
+        # )
+        # scene.add(curve)
+
+        # subtree = example_tree.remove_subtree(scene, v_from)
+
+        # scene.wait(4)
+
+
+        # self.play(
+        #     subtree.animate().shift(1*LEFT)
+        # )
+
+        # scene.play(
+        #     MoveAlongPath(subtree, Line(UP, DOWN))
+        # )
+        return
+
+
+        example_tree.add_subtree(scene, subtree, v_to)
+
+        self.wait()
+
+        return
         self.wait(2)
 
         example_tree.pretty_colour()
