@@ -46,6 +46,17 @@ example_edges = [
 ]
 
 
+sample_vertices = list(range(1, 8))
+sample_edges = [
+    (1, 2),
+    (1, 3),
+    (1, 4),
+    (2, 5),
+    (2, 6),
+    (4, 7),
+]
+
+
 def rooted_position(pos_root=ORIGIN, sh=0.5 * RIGHT, SH=1 * RIGHT, H=1 * DOWN):
     positions = {}
 

@@ -182,6 +182,7 @@ class ProblemStatement(Scene):
         )
         self.play(
             *[Uncreate(e) for e in edge_children],
+            example_vertex.animate().set_color(GRAY)
         )
         self.wait()    
         
@@ -196,7 +197,7 @@ class ProblemStatement(Scene):
 
         highlight_box.generate_target()
         highlight_box.target = Rectangle(
-            width = scene_width/2 - 0.5,
+            width = highlight_box.get_width(),
             height = 1.4,
             color = RED,
         ).next_to(highlight_box, DOWN, buff = DEFAULT_MOBJECT_TO_MOBJECT_BUFFER/2.0)
@@ -225,7 +226,121 @@ class ProblemStatement(Scene):
             Uncreate(arrow)
         )
         self.wait()
-        
+
+        #Now, we’re allowed to manipulate our tree it in the following way: we can take a bud and re-hang it and its children to another node of the tree. Notice that in this case, after we cut  this bud off the tree, this guy becomes a new bud, and after we put the bud back here, this guy stops being a leaf and also this is not a bud anymore. 
+
+        highlight_box.generate_target()
+        highlight_box.target = Rectangle(
+            width = highlight_box.get_width(),
+            height = 1.2,
+            color = RED,
+        ).next_to(highlight_box, DOWN, buff = DEFAULT_MOBJECT_TO_MOBJECT_BUFFER/2.0)
+        self.play(
+            MoveToTarget(highlight_box),
+        )
+        self.wait()
+
+        #And now the question is: You’re allowed to do these operations any number of times with any buds you choose. If you do the operations as cleverly as possible, what’s the lowest number of leaves the tree can have? For example, the number of leaves at the beginning is 7. You can see how it changes when we do the operations and the lowest we can get seems to be 5.
+
+        highlight_box.generate_target()
+        highlight_box.target = Rectangle(
+            width = highlight_box.get_width(),
+            height = 0.4,
+            color = RED,
+        ).next_to(highlight_box, DOWN, buff = DEFAULT_MOBJECT_TO_MOBJECT_BUFFER/2.0)
+        self.play(
+            MoveToTarget(highlight_box),
+        )
+        self.wait()
+
+        #TODO
+
+        # Because this is a coding problem, it is also important how large the input data is. You can see that the tree can have around 10^5 nodes, which means that our algorithm for computing the answer needs to have close to linear time complexity. 
+
+        self.play(
+            Group(
+                statement,
+                statement_caption,
+                highlight_box,
+            ).animate().shift(6*UP)
+        )
+        self.wait()
+
+        highlight_box.generate_target()
+        highlight_box.target = Rectangle(
+            width = highlight_box.get_width(),
+            height = 1.4,
+            color = RED,
+        ).next_to(highlight_box, DOWN, buff = DEFAULT_MOBJECT_TO_MOBJECT_BUFFER/2.0).shift(0.3*DOWN)
+        self.play(
+            MoveToTarget(highlight_box),
+        )
+        self.wait()
+
+
+        # There are examples in the problem statement to make this clearer. Let’s look at the first one: the tree looks like this. It has four leaves. But if we rehang this bud here and this bud there, we get a tree with two leaves, which is the correct answer.
+
+        highlight_box.generate_target()
+        highlight_box.target = Rectangle(
+            width = highlight_box.get_width(),
+            height = 1.7,
+            color = RED,
+        ).next_to(highlight_box, DOWN, buff = DEFAULT_MOBJECT_TO_MOBJECT_BUFFER/2.0).shift(2.5*DOWN)
+        self.play(
+            MoveToTarget(highlight_box),
+        )
+        self.wait()
+
+        self.play(
+            Uncreate(example_tree),
+        )
+
+        sample_tree = Tree(
+            sample_vertices,
+            sample_edges,
+            layout="kamada_kawai",
+            layout_scale=tree_scale,
+            vertex_config={"radius": node_radius, "color": WHITE}, # for debugging
+            labels=True, # for debugging
+            edge_config={"color": text_color}
+        )#.move_to(scene_width/4 * RIGHT)
+
+        H = 1.0 * DOWN
+        W = 0.6 * RIGHT
+        sample_tree.change_layout(
+            {
+                1: ORIGIN,
+                2: H - W,
+                3: H,
+                4: H + W,
+                5: 2*H - 3*W/2,
+                6: 2*H - W/2,
+                7: 2*H + W,
+            }
+        ).move_to(scene_width/4 * RIGHT + 1*UP)
+
+        self.play(
+            Create(sample_tree),
+        )
+        self.wait()
+
+        self.play(
+            Group(
+                statement,
+                statement_caption,
+                highlight_box,
+            ).animate().shift(4*UP)
+        )
+        highlight_box2 = Rectangle(
+            width = highlight_box.get_width(),
+            height = 0.3,
+            color = RED,
+        ).move_to(highlight_box.get_center()).shift(5.5*DOWN)
+        self.play(
+            Create(highlight_box2),
+        )
+
+        self.wait()
 
 
 
