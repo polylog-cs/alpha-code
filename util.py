@@ -1,3 +1,4 @@
+import itertools
 import random
 import math
 from manim import *
@@ -87,7 +88,6 @@ class Forest():
 
     def add(self, tree):
         tree.change_layout(rooted_position())
-        tree.pretty_colour(bud_colour=self.bud_colour, leaf_colour=self.leaf_colour)
         self.trees.append(tree)
 
     def remove(self, index: int):
@@ -102,8 +102,8 @@ class Forest():
         new_tree.change_layout(rooted_position())
         return new_tree
 
-    def add_subtree_to_tree(self, subtree_index: int, tree_index: int, vertex: int):
-        tree = self.trees[tree_index].add_subtree(self.trees[subtree_index], vertex)
+    def add_subtree_to_tree(self, subtree_index: int, tree_index: int, vertex: int, position: int):
+        tree = self.trees[tree_index].add_subtree(self.trees[subtree_index], vertex, position)
         if subtree_index < tree_index:
             self.trees.pop(tree_index)
             self.trees.pop(subtree_index)
@@ -116,6 +116,20 @@ class Forest():
     def pretty_colour(self, bud_colour=solarized.RED, leaf_colour=solarized.GREEN):
         for tree in self.trees:
             tree.pretty_colour(bud_colour, leaf_colour)
+
+    def pretty_colour_with_gray_subtone(self, bud_colour=solarized.RED, leaf_colour=solarized.GREEN):
+        for tree in self.trees:
+            tree.pretty_colour_with_gray_subtone(bud_colour, leaf_colour)
+
+    def remove_updaters(self, function):
+        for tree in self.trees:
+            tree.remove_updater(function)
+
+    def get_buds(self):
+        return [item for sublist in [tree.get_buds() for tree in self.trees] for item in sublist]
+
+    def get_leaves(self):
+        return [item for sublist in [tree.get_leaves() for tree in self.trees] for item in sublist]
 
 
 class Tree(Graph):
@@ -134,6 +148,17 @@ class Tree(Graph):
 
     def root(self) -> int:
         return min(self.vertices.keys())
+
+    def sons(self, vertex: int) -> [int]:
+        res = [v for v in self.get_adjacency_list()[vertex] if v > vertex]
+        res.sort()
+        return res
+
+    def get_largest_descendent(self, vertex: int) -> int:
+        res = self.sons(vertex)
+        if len(res) == 0:
+            return vertex
+        return self.get_largest_descendent(res[len(res) - 1])
 
     def get_adjacency_list(self):
         adj = dict([(v, []) for v in self.vertices])
@@ -236,6 +261,66 @@ class Tree(Graph):
 
         return self.set_colors(vertex_colors, edge_colors)
 
+    def update_vertexes(self, vertex: int, position: int, root: int, new_vertexes: [int], new_edges: [(int, int)]):
+        res_vertexes = []
+        res_edges = []
+        all_vertexes = []
+
+        max_value_before_root = vertex
+        if position > 0:
+            max_value_before_root = self.get_largest_descendent(self.sons(vertex)[position - 1])
+
+        for v in self.vertices:
+            if v > max_value_before_root:
+                all_vertexes.append(v + len(new_vertexes))
+            else:
+                all_vertexes.append(v)
+
+        for v in new_vertexes:
+            all_vertexes.append(v + max_value_before_root - root + 1)
+
+        all_vertexes.sort()
+
+        map_new_vertexes = {}
+        i = 0
+        for v in all_vertexes:
+            i += 1
+            if v > max_value_before_root + len(new_vertexes):
+                map_new_vertexes[v - len(new_vertexes)] = i
+            elif v > max_value_before_root:
+                map_new_vertexes[v - (max_value_before_root - root + 1)] = i
+            else:
+                map_new_vertexes[v] = i
+            res_vertexes.append(i)
+
+        for a, b in self.edges:
+            res_edges.append((map_new_vertexes[a], map_new_vertexes[b]))
+
+        res_edges.append((map_new_vertexes[vertex], map_new_vertexes[root]))
+
+        for a, b in new_edges:
+            res_edges.append((map_new_vertexes[a], map_new_vertexes[b]))
+
+        return res_vertexes, res_edges
+
+    def add_subtree(self, tree, vertex: int, position: int):
+        vertices, edges = self.update_vertexes(vertex, position, tree.root(), tree.vertices, tree.edges)
+
+        return Tree(
+            vertices,
+            edges,
+            layout="kamada_kawai",
+            layout_scale=3,
+            vertex_config={"radius": 0.2, "color": text_color},
+            labels=False,
+            edge_config={"color": text_color}
+        )
+        #print(*self.vertices, *self.edges)
+        #self.add_vertices(*tree.vertices)
+        #self.add_edges(*tree.edges)
+        #self.add_edges((vertex, tree.root()))
+        #print(*self.vertices, *self.edges)
+
     def remove_subtree(self, vertex: int):
         vertices, edges, _ = self.bfs(vertex, lambda start, curr: start < curr)
         flatten_vertices = flatten(vertices)
@@ -251,64 +336,10 @@ class Tree(Graph):
             edge_config={"color": text_color}
         )
 
-    def update_vertexes(self, vertex: int, root: int, new_vertexes: [int], new_edges: [(int, int)]):
-        res_vertexes = []
-        res_edges = []
-
-        all_vertexes = []
-
-        for v in self.vertices:
-            if v > vertex:
-                all_vertexes.append(v + len(new_vertexes))
-            else:
-                all_vertexes.append(v)
-
-        for v in new_vertexes:
-            all_vertexes.append(v + vertex - root + 1)
-
-        all_vertexes.sort()
-
-        map_new_vertexes = {}
-        i = 0
-        for v in all_vertexes:
-            i += 1
-            if v > vertex + len(new_vertexes):
-                map_new_vertexes[v - len(new_vertexes)] = i
-            elif v > vertex:
-                map_new_vertexes[v - (vertex - root + 1)] = i
-            else:
-                map_new_vertexes[v] = i
-            res_vertexes.append(i)
-
-        for a, b in self.edges:
-            res_edges.append((map_new_vertexes[a], map_new_vertexes[b]))
-
-        res_edges.append((map_new_vertexes[vertex], map_new_vertexes[root]))
-
-        for a, b in new_edges:
-            res_edges.append((map_new_vertexes[a], map_new_vertexes[b]))
-
-        return res_vertexes, res_edges
-
-
-    def add_subtree(self, tree, vertex: int):
-        vertices, edges = self.update_vertexes(vertex, tree.root(), tree.vertices, tree.edges)
-
-        return Tree(
-            vertices,
-            edges,
-            layout="kamada_kawai",
-            layout_scale=3,
-            vertex_config={"radius": 0.2, "color": text_color},
-            labels=False,
-            edge_config={"color": text_color}
-        )
-
     def get_leaves(self) -> Set[int]:
-        adj = self.get_adjacency_list()
         res = set()
         for vertex in self.vertices:
-            if len(adj[vertex]) <= 1:
+            if len(self.sons(vertex)) == 0:
                 res.add(vertex)
         return res
 
@@ -328,12 +359,22 @@ class Tree(Graph):
     def get_buds_cnt(self):
         return len(self.get_buds())
 
-    def pretty_colour(self, bud_colour=solarized.RED, leaf_colour=solarized.GREEN):
+    def pretty_colour(self, bud_colour=solarized.RED, leaf_colour=solarized.YELLOW):
         colours = {}
         for vertex in self.get_leaves():
             colours[vertex] = leaf_colour
         for vertex in self.get_buds():
             colours[vertex] = bud_colour
         self.set_colors(colours, None)
-        pass
 
+    def pretty_colour_with_gray_subtone(self, gray_bud_colour=solarized.RED, gray_leaf_colour=solarized.YELLOW):
+        buds = self.get_buds()
+        leaves = self.get_leaves()
+        gray_vertices = [vertex for vertex in self.vertices if vertex not in buds and vertex not in leaves]
+        colours = {}
+        for vertex in gray_vertices:
+            if self[vertex].get_fill_color() == solarized.BLUE:
+                colours[vertex] = gray_bud_colour
+            elif self[vertex].get_fill_color() == solarized.CYAN:
+                colours[vertex] = gray_leaf_colour
+        self.set_colors(colours, None)

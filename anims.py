@@ -1,4 +1,6 @@
 from random import randrange
+
+import solarized
 from util import *
 
 scene_width = 14.2
@@ -6,7 +8,6 @@ scene_width = 14.2
 class Intro(Scene):
     def construct(self):
 
-        #TODO kolize
         num_img = 26
         dalle_images = []
         for i in range(num_img):
@@ -234,7 +235,7 @@ class Explore(Scene):
         tree_scale = 3
         node_radius = 0.2
 
-
+        colour_function = lambda x: forest.pretty_colour(solarized.BLUE, solarized.CYAN)
 
         example_tree = Tree(
             example_vertices,
@@ -248,7 +249,7 @@ class Explore(Scene):
 
         forest = Forest(example_tree, solarized.BLUE, solarized.CYAN)
 
-        example_tree.add_updater(lambda x: forest.pretty_colour(solarized.BLUE, solarized.CYAN))
+        example_tree.add_updater(colour_function)
 
         budCounter = Integer(0, color=RED).shift(3*UP)
         budCounter.add_updater(lambda x: x.set_value(forest.get_leaves_cnt()))
@@ -264,9 +265,13 @@ class Explore(Scene):
         )
         self.wait(2)
 
-        new_tree = forest.remove_subtree_from_tree(0, 3)
-        new_tree.add_updater(lambda x: forest.pretty_colour(solarized.BLUE, solarized.CYAN))
+        new_tree = forest.remove_subtree_from_tree(0, 5)
+        new_tree.add_updater(colour_function)
+
+        new_tree2 = forest.remove_subtree_from_tree(0, 12)
+        new_tree2.add_updater(colour_function)
         self.add(new_tree)
+        self.add(new_tree2)
         self.remove(example_tree)
         self.add(example_tree)
 
@@ -274,22 +279,88 @@ class Explore(Scene):
             new_tree.animate().shift(2*LEFT),
             run_time=1
         )
+        self.play(
+            new_tree2.animate().shift(2 * RIGHT),
+            run_time=1
+        )
+        new_tree3 = forest.remove_subtree_from_tree(0, 2)
+        new_tree3.add_updater(colour_function)
+
+        new_tree4 = forest.remove_subtree_from_tree(0, 9)
+        new_tree4.add_updater(colour_function)
+        self.add(new_tree3)
+        self.add(new_tree4)
+        self.remove(example_tree)
+        self.add(example_tree)
+
+        self.play(
+            new_tree3.animate().shift(2 * LEFT),
+            run_time=1
+        )
+        self.play(
+            new_tree4.animate().shift(2 * RIGHT),
+            run_time=1
+        )
         self.wait(2)
 
-        tr = forest.add_subtree_to_tree(1, 0, 2)
-        tr.add_updater(lambda x: forest.pretty_colour(solarized.BLUE, solarized.CYAN))
-        self.remove(example_tree)
+        forest.remove_updaters(colour_function)
+
+
+        self.play(
+            new_tree4.animate().shift(2 * LEFT),
+            run_time=1
+        )
+        self.play(
+            new_tree3.animate().shift(2 * RIGHT),
+            run_time=1
+        )
+        self.play(
+            new_tree2.animate().shift(2 * LEFT),
+            run_time=1
+        )
+        self.play(
+            new_tree.animate().shift(2 * RIGHT),
+            run_time=1
+        )
+        colours = {}
+        leaves = forest.get_leaves()
+        buds = forest.get_buds()
+        for leaf in leaves:
+            colours[leaf] = solarized.RED
+        for bud in buds:
+            colours[bud] = solarized.YELLOW
+
+        forest.add_subtree_to_tree(3, 0, 1, 0)
+        self.remove(new_tree3)
+        forest.add_subtree_to_tree(0, 3, 2, 2)
         self.remove(new_tree)
+        forest.add_subtree_to_tree(1, 2, 1, 1)
+        self.remove(new_tree4)
+        tr = forest.add_subtree_to_tree(0, 1, 11, 0)
+        self.remove(new_tree2)
+        self.remove(example_tree)
         self.add(tr)
+        tr.set_colors(colours)
+        forest.pretty_colour(solarized.BLUE, solarized.CYAN)
         self.play(
             tr.animate().change_layout(rooted_position()),
             run_time=1
         )
         self.wait(2)
 
-        self.play(
-            tr.animate().shift(2 * UP),
-            run_time=1
-        )
-        self.wait(2)
+        # example_tree.add_subtree(new_tree3, 1)
+        # self.remove(new_tree3)
+        # self.remove(example_tree)
+        # self.add(example_tree)
+        # example_tree.add_subtree(new_tree, 2)
+        # self.remove(new_tree)
+        # example_tree.add_subtree(new_tree4, 1)
+        # self.remove(new_tree4)
+        # example_tree.add_subtree(new_tree2, 11)
+        # self.remove(new_tree2)
+        # self.remove(example_tree)
+        # self.add(example_tree)
+        # example_tree.set_colors(colours)
+        # forest.pretty_colour(solarized.BLUE, solarized.CYAN)
+        # self.wait(2)
 
