@@ -46,7 +46,6 @@ example_edges = [
     (12, 13),
 ]
 
-
 sample_vertices = list(range(1, 8))
 sample_edges = [
     (1, 2),
@@ -144,7 +143,7 @@ class Forest():
 
 
 class Tree(Graph):
-    def __init__(self, *args, label_class=MathTex, **kwargs):
+    def __init__(self, *args, label_class=MathTex, root=None, **kwargs):
         # Hack to fix "labels=True" when TeX is not available
         # (uses `Text` instead of `MathTex`)
         if kwargs.get("labels"):
@@ -156,21 +155,25 @@ class Tree(Graph):
             kwargs["labels"] = labels
 
         super().__init__(*args, **kwargs)
+        self.root = root
+        self.parents = {root: None}
+        tmp = [root]
+        while len(tmp) > 0:
+            vertex = tmp.pop()
+            for neighbour in self.get_adjacency_list()[vertex]:
+                if neighbour not in self.parents.keys():
+                    self.parents[neighbour] = vertex
+                    tmp.append(neighbour)
 
-    def root_the_tree(self, root: int):
-        pass # create parent pointers
+    def get_root(self) -> int:  # VR probably works now but rather have it as separate parameter
+        return self.root
 
-    def root(self) -> int: # VR probably works now but rather have it as separate parameter
-        return min(self.vertices.keys())
-
-    def sons(self, vertex: int) -> [int]: # VR this will not hold after few rehangings
-        res = [v for v in self.get_adjacency_list()[vertex] if v > vertex]
-        res.sort()
+    def sons(self, vertex: int) -> [int]:
+        res = [v for v in self.get_adjacency_list()[vertex] if v != self.parents[vertex]]
         return res
 
-    def parent(self, vertex: int) -> [int]: # VR pls do properly
-        res = [v for v in self.get_adjacency_list()[vertex] if v < vertex]
-        return res[0]
+    def parent(self, vertex: int) -> int:
+        return self.parents[vertex]
 
     def get_largest_descendent(self, vertex: int) -> int:
         res = self.sons(vertex)
@@ -324,22 +327,24 @@ class Tree(Graph):
     def add_subtree(self, scene, subtree, vertex: int):
 
         subtree_layout = {}
-        print(subtree.vertices)
         for v in subtree.vertices:
             subtree_layout[v] = subtree.vertices[v].get_center()
 
         self.add_vertices(
             *subtree.vertices,
-            positions = subtree_layout
+            positions=subtree_layout
         )
         self.add_edges(
             *subtree.edges
         )
+        self.add_edges((vertex, subtree.get_root()))
 
-        parent_edge = Line( 
-            start = subtree.vertices[subtree.root()].get_center(),
-            end = self.vertices[vertex].get_center(),
-            color = GRAY,            
+        self.parents[subtree.get_root()] = vertex
+
+        parent_edge = Line(
+            start=subtree.vertices[subtree.get_root()].get_center(),
+            end=self.vertices[vertex].get_center(),
+            color=GRAY,
         )
 
         scene.play(
@@ -350,32 +355,31 @@ class Tree(Graph):
         scene.remove(self, subtree)
         scene.add(self)
 
-
     def remove_subtree(self, scene, vertex: int):
-        vertices, edges, _ = self.bfs(vertex, lambda start, curr: start < curr) # VR I guess it works now?
+        vertices, edges, _ = self.bfs(vertex, lambda start, curr: start < curr)  # VR I guess it works now?
         flatten_vertices = flatten(vertices)
         flatten_edges = flatten(edges)
 
         parent_edge = Line(
-            start = self.vertices[vertex].get_center(),
-            end = self.vertices[self.parent(vertex)].get_center(),
-            color = GRAY,            
+            start=self.vertices[vertex].get_center(),
+            end=self.vertices[self.parent(vertex)].get_center(),
+            color=GRAY,
         )
 
         subtree_layout = {}
         for v in flatten_vertices:
             subtree_layout[v] = self.vertices[v].get_center()
-        
+
         subtree = Tree(
             flatten_vertices,
             flatten_edges,
             layout=subtree_layout,
-            layout_scale=3, # !
+            layout_scale=3,  # !
             vertex_config={"radius": 0.2, "color": text_color},
-            labels=False,
+            labels=True,
+            root=vertex,
             edge_config={"color": text_color}
         )
-
 
         # nothing should happen on the scene
         self.remove_vertices(*flatten_vertices)
@@ -402,7 +406,7 @@ class Tree(Graph):
         res = set()
 
         for vertex in self.vertices:
-            if vertex not in leaves and all(neighbour in leaves or neighbour < vertex for neighbour in adj[vertex]):
+            if vertex not in leaves and all(neighbour in leaves or neighbour == self.parent(vertex) for neighbour in adj[vertex]):
                 res.add(vertex)
         return res
 
@@ -420,14 +424,13 @@ class Tree(Graph):
             colours[vertex] = bud_colour
         self.set_colors(colours, None)
 
-    def pretty_colour_with_gray_subtone(self, gray_bud_colour=solarized.RED, gray_leaf_colour=solarized.YELLOW):
-        buds = self.get_buds()
-        leaves = self.get_leaves()
-        gray_vertices = [vertex for vertex in self.vertices if vertex not in buds and vertex not in leaves]
+    def change_colours(self, bud_colour=solarized.GREEN, leaf_colour=solarized.CYAN):
         colours = {}
-        for vertex in gray_vertices:
-            if self[vertex].get_fill_color() == solarized.BLUE:
-                colours[vertex] = gray_bud_colour
-            elif self[vertex].get_fill_color() == solarized.CYAN:
-                colours[vertex] = gray_leaf_colour
+        leaves = self.get_leaves()
+        buds = self.get_buds()
+        print(leaves, buds)
+        for leaf in leaves:
+            colours[leaf] = leaf_colour
+        for bud in buds:
+            colours[bud] = bud_colour
         self.set_colors(colours, None)
