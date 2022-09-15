@@ -410,15 +410,9 @@ class Tree(Graph):
         scene.add(self, subtree, parent_edge)
         subtree.pretty_colour()
 
-        center = subtree[subtree.get_root()].get_center()
-        circle = Circle.from_three_points(center + 0.5 * UP, center + 0.5 * DOWN, center + 0.5 * LEFT)
-        always(circle.next_to, subtree[subtree.get_root()], 0)
-        print(subtree.get_root())
-
         # delete the parent edge
         scene.play(
-            Uncreate(parent_edge),
-            Create(circle)
+            Uncreate(parent_edge)
         )
 
         for k, v in self.get_colours().items():
@@ -452,6 +446,14 @@ class Tree(Graph):
         self.add_subtree(scene, subtree, v_to)
         scene.remove(curve)
         scene.wait()
+
+    def add_circle(self, vertex: int, scene):
+        center = self[vertex].get_center()
+        circle = Circle.from_three_points(center + 0.5 * UP, center + 0.5 * DOWN, center + 0.5 * LEFT)
+        always(circle.next_to, self[vertex], 0)
+        scene.play(
+            Create(circle)
+        )
 
     def get_leaves(self) -> Set[int]:
         res = set()

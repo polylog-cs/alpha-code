@@ -47,13 +47,8 @@ class Intro(Scene):
         dalle_images = []
         for i in range(len(img_positions)):
             dalle_images.append(
-<<<<<<< HEAD
-                ImageMobject("img/dalle/p{}.jpg".format((i % num_img)+1)).scale_to_fit_width(2).move_to(
-                    img_positions[i]
-=======
                 ImageMobject("img/dalle/p{}.jpg".format(i + 1)).scale_to_fit_width(2).move_to(
                     random.choice([-4, -2, 0, 2, 4]) * RIGHT + random.choice([-2, 0, 2]) * UP
->>>>>>> automatic colouting
                 )
             )
 
@@ -240,15 +235,11 @@ class Statement(Scene):
         # leaves
         leaves = example_tree.get_leaves()
         self.play(
-<<<<<<< HEAD
-            *[example_tree.vertices[v].animate().set_color(BLUE) for v in leaves]
-=======
             example_tree.animate().pretty_colour()
->>>>>>> automatic colouting
         )
         self.wait()
 
-        # So far, these are standard terms. In this problem specifically, we also need the concept of a bud. A bud is a node that’s not a root, has at least one child, and all its children are leaves. In other words, buds are basically the nodes that have only leaves as children but are not leaves themselves. I highlighted all of these in blue. 
+        # So far, these are standard terms. In this problem specifically, we also need the concept of a bud. A bud is a node that’s not a root, has at least one child, and all its children are leaves. In other words, buds are basically the nodes that have only leaves as children but are not leaves themselves. I highlighted all of these in blue.
 
         highlight_box.generate_target()
         highlight_box.target = Rectangle(
@@ -296,11 +287,9 @@ class Statement(Scene):
         )
         self.wait()
 
-<<<<<<< HEAD
-=======
         H = 1 * DOWN
->>>>>>> automatic colouting
 
+        example_tree.add_circle(5, self)
         example_tree.rehang_subtree(
             self,
             5,
@@ -309,6 +298,7 @@ class Statement(Scene):
             1 * DOWN,
             1 * LEFT + 1 * DOWN,
         )
+        example_tree.add_circle(5, self)
 
         example_tree.rehang_subtree(
             self,
@@ -316,7 +306,7 @@ class Statement(Scene):
             2,
             example_tree.vertices[10].get_center() + H,
             1*LEFT + 1 * DOWN,
-            1 *DOWN,            
+            1 *DOWN,
         )
 
         example_tree.rehang_subtree(
@@ -329,13 +319,8 @@ class Statement(Scene):
         )
 
         self.wait()
-<<<<<<< HEAD
-        
-        #And now the question is: You’re allowed to do these operations any number of times with any buds you choose. If you do the operations as cleverly as possible, what’s the lowest number of leaves the tree can have? For example, the number of leaves at the beginning is 7. You can see how it changes when we do the operations and the lowest we can get seems to be 5.
-=======
         return
         # And now the question is: You’re allowed to do these operations any number of times with any buds you choose. If you do the operations as cleverly as possible, what’s the lowest number of leaves the tree can have? For example, the number of leaves at the beginning is 7. You can see how it changes when we do the operations and the lowest we can get seems to be 5.
->>>>>>> automatic colouting
 
         highlight_box.generate_target()
         highlight_box.target = Rectangle(
@@ -347,19 +332,6 @@ class Statement(Scene):
             MoveToTarget(highlight_box),
         )
         self.wait()
-
-<<<<<<< HEAD
-        example_tree.rehang_subtree(
-            self,
-            5,
-            10,
-            example_tree.vertices[10].get_center() + H,
-            1 *DOWN,
-            1*LEFT + 1 * DOWN,
-        )
-=======
-        # TODO
->>>>>>> automatic colouting
 
         example_tree.rehang_subtree(
             self,
@@ -380,7 +352,7 @@ class Statement(Scene):
         )
 
         self.wait()
-        # Because this is a coding problem, it is also important how large the input data is. You can see that the tree can have around 10^5 nodes, which means that our algorithm for computing the answer needs to have close to linear time complexity. 
+        # Because this is a coding problem, it is also important how large the input data is. You can see that the tree can have around 10^5 nodes, which means that our algorithm for computing the answer needs to have close to linear time complexity.
 
         self.play(
             Group(
