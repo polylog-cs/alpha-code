@@ -5,20 +5,41 @@ from util import *
 
 scene_width = 14.2
 
+
 class Intro(Scene):
     def construct(self):
-
+        
         num_img = 26
+        img_positions = []
+        
+        for n, l1, l2 in [
+            (10, [-4, -2, 0, 2, 4], [-2, 0, 2]),
+            (10, [-6, -4, -2], [-2, 0, 2]),
+        ]:
+            for _ in range(n):
+                while(True):
+                    new_pos = np.array(random.choice(l1) * RIGHT + random.choice(l2) * UP)
+                    i = max(0, len(img_positions) - 6)
+                    collision = False
+                    for pos in img_positions[i:]:
+                        if np.array_equal(pos, new_pos):
+                            collision = True
+                    if collision == True:
+                        continue
+                    else:
+                        img_positions.append(new_pos)
+                        break
+        
         dalle_images = []
-        for i in range(num_img):
+        for i in range(len(img_positions)):
             dalle_images.append(
-                ImageMobject("img/dalle/p{}.jpg".format(i+1)).scale_to_fit_width(2).move_to(
-                    random.choice([-4, -2, 0, 2, 4]) * RIGHT + random.choice([-2, 0, 2]) * UP
+                ImageMobject("img/dalle/p{}.jpg".format((i % num_img)+1)).scale_to_fit_width(2).move_to(
+                    img_positions[i]
                 )
             )
 
         anims = []
-        for i in range(num_img):
+        for i in range(len(img_positions)):
             anims.append(
                 Succession(
                     FadeIn(dalle_images[i]),
@@ -88,6 +109,16 @@ class Polylog(Scene):
 class ProblemStatement(Scene):
     def construct(self):
         self.next_section(skip_animations=True)
+
+        caption = Tex("The Problem", color = GRAY).scale(3)
+        self.play(
+            FadeIn(caption)
+        )
+        self.wait()
+        self.play(
+            FadeOut(caption)
+        )
+
         # The problem I’ll be solving is called Buds Re-hanging. In this problem, we are given a tree, so a bunch of nodes connected by edges such that no edges form a cycle. 
 
         statement = ImageMobject(
@@ -257,6 +288,48 @@ class ProblemStatement(Scene):
 
         example_tree.rehang_subtree(
             self,
+            5,
+            2,
+            example_tree.vertices[10].get_center() + H,
+            1*LEFT + 1 * DOWN,
+            1 *DOWN,            
+        )
+
+        example_tree.rehang_subtree(
+            self,
+            5,
+            10,
+            example_tree.vertices[10].get_center() + H,
+            1 *DOWN,
+            1*LEFT + 1 * DOWN,
+        )
+
+        self.wait()
+        
+        #And now the question is: You’re allowed to do these operations any number of times with any buds you choose. If you do the operations as cleverly as possible, what’s the lowest number of leaves the tree can have? For example, the number of leaves at the beginning is 7. You can see how it changes when we do the operations and the lowest we can get seems to be 5.
+
+        highlight_box.generate_target()
+        highlight_box.target = Rectangle(
+            width = highlight_box.get_width(),
+            height = 0.4,
+            color = RED,
+        ).next_to(highlight_box, DOWN, buff = DEFAULT_MOBJECT_TO_MOBJECT_BUFFER/2.0)
+        self.play(
+            MoveToTarget(highlight_box),
+        )
+        self.wait()
+
+        example_tree.rehang_subtree(
+            self,
+            5,
+            10,
+            example_tree.vertices[10].get_center() + H,
+            1 *DOWN,
+            1*LEFT + 1 * DOWN,
+        )
+
+        example_tree.rehang_subtree(
+            self,
             12,
             4,
             example_tree.vertices[4].get_center() + H,
@@ -274,22 +347,6 @@ class ProblemStatement(Scene):
         )
 
         self.wait()
-        return
-        #And now the question is: You’re allowed to do these operations any number of times with any buds you choose. If you do the operations as cleverly as possible, what’s the lowest number of leaves the tree can have? For example, the number of leaves at the beginning is 7. You can see how it changes when we do the operations and the lowest we can get seems to be 5.
-
-        highlight_box.generate_target()
-        highlight_box.target = Rectangle(
-            width = highlight_box.get_width(),
-            height = 0.4,
-            color = RED,
-        ).next_to(highlight_box, DOWN, buff = DEFAULT_MOBJECT_TO_MOBJECT_BUFFER/2.0)
-        self.play(
-            MoveToTarget(highlight_box),
-        )
-        self.wait()
-
-        #TODO
-
         # Because this is a coding problem, it is also important how large the input data is. You can see that the tree can have around 10^5 nodes, which means that our algorithm for computing the answer needs to have close to linear time complexity. 
 
         self.play(
