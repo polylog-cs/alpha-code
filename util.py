@@ -130,10 +130,6 @@ class Forest():
         self.add(tree)
         return tree
 
-    def pretty_colour(self, bud_colour=solarized.RED, leaf_colour=solarized.GREEN):
-        for tree in self.trees:
-            tree.pretty_colour(bud_colour, leaf_colour)
-
     def pretty_colour_with_gray_subtone(self, bud_colour=solarized.RED, leaf_colour=solarized.GREEN):
         for tree in self.trees:
             tree.pretty_colour_with_gray_subtone(bud_colour, leaf_colour)
@@ -358,6 +354,7 @@ class Tree(Graph):
         self.add_edges(
             *subtree.edges
         )
+        self.set_colors(subtree.get_colours())
 
         parent_edge = Line(
             start=subtree.vertices[subtree.get_root()].get_center(),
@@ -368,20 +365,21 @@ class Tree(Graph):
             Create(parent_edge)
         )
         scene.remove(parent_edge)
-        
+
         self.add_edges((vertex, subtree.get_root()))
         self.parents[subtree.get_root()] = vertex
-
-
-
-
+        for k, v in self.get_colours().items():
+            scene.play(
+                self[k].animate().set_fill(v)
+            )
 
         # nothing should happen on the scene
         scene.remove(self, subtree)
         scene.add(self)
 
     def remove_subtree(self, scene, vertex: int):
-        vertices, edges, _ = self.bfs(vertex, lambda start, curr: curr != self.parent(start))  # VR I guess it works now?
+        vertices, edges, _ = self.bfs(vertex,
+                                      lambda start, curr: curr != self.parent(start))  # VR I guess it works now?
         flatten_vertices = flatten(vertices)
         flatten_edges = flatten(edges)
 
@@ -410,24 +408,23 @@ class Tree(Graph):
         self.remove_vertices(*flatten_vertices)
         scene.remove(self)
         scene.add(self, subtree, parent_edge)
+        subtree.pretty_colour()
 
         # delete the parent edge
         scene.play(
-            Uncreate(parent_edge)
+            Uncreate(parent_edge),
         )
-
+        for k, v in self.get_colours().items():
+            scene.play(
+                self[k].animate().set_fill(v)
+            )
         return subtree
 
     def rehang_subtree(self, scene, v_from, v_to, new_pos, dir1, dir2):
-        print(*self.vertices)
-        print(*self.edges)
-        print(*self.parents.keys())
-        print(*self.parents.items())
-
         root_pos = self.vertices[v_from].get_center()
 
         scene.play(
-            Flash(self.vertices[v_from], color = RED)
+            Flash(self.vertices[v_from], color=RED)
         )
 
         subtree = self.remove_subtree(scene, v_from)
@@ -444,7 +441,6 @@ class Tree(Graph):
         scene.play(
             MoveAlongPath(subtree, curve)
         )
-
 
         self.add_subtree(scene, subtree, v_to)
         scene.remove(curve)
@@ -463,7 +459,8 @@ class Tree(Graph):
         res = set()
 
         for vertex in self.vertices:
-            if vertex not in leaves and all(neighbour in leaves or neighbour == self.parent(vertex) for neighbour in adj[vertex]):
+            if vertex not in leaves and all(
+                    neighbour in leaves or neighbour == self.parent(vertex) for neighbour in adj[vertex]):
                 res.add(vertex)
         return res
 
@@ -473,19 +470,29 @@ class Tree(Graph):
     def get_buds_cnt(self):
         return len(self.get_buds())
 
-    def pretty_colour(self, bud_colour=solarized.RED, leaf_colour=solarized.YELLOW):
-        colours = {}
-        for vertex in self.get_leaves():
-            colours[vertex] = leaf_colour
-        for vertex in self.get_buds():
-            colours[vertex] = bud_colour
-        self.set_colors(colours, None)
-
-    def change_colours(self, bud_colour=solarized.GREEN, leaf_colour=solarized.CYAN):
+    def get_colours(self, bud_colour=solarized.CYAN, leaf_colour=solarized.GREEN):
         colours = {}
         leaves = self.get_leaves()
         buds = self.get_buds()
-        print(leaves, buds)
+        for vertex in self.vertices:
+            if self[vertex].get_color().__str__() != solarized.GRAY.__str__() and vertex not in buds and vertex not in leaves:
+                colours[vertex] = solarized.GRAY
+        for vertex in leaves:
+            if self[vertex].get_color().__str__() != leaf_colour.__str__():
+                colours[vertex] = leaf_colour
+        for vertex in buds:
+            print(vertex, self[vertex].get_color().__str__(), bud_colour.__str__())
+            if self[vertex].get_color().__str__() != bud_colour.__str__():
+                colours[vertex] = bud_colour
+        return colours
+
+    def pretty_colour(self, bud_colour=solarized.CYAN, leaf_colour=solarized.GREEN):
+        self.set_colors(self.get_colours(bud_colour, leaf_colour), None)
+
+    def change_colours(self, bud_colour=solarized.CYAN, leaf_colour=solarized.GREEN):
+        colours = {}
+        leaves = self.get_leaves()
+        buds = self.get_buds()
         for leaf in leaves:
             colours[leaf] = leaf_colour
         for bud in buds:

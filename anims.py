@@ -19,6 +19,7 @@ def sugar(scene, tree, n1, n2, n_sh):
         2 * DOWN,
     )
 
+
 class Intro(Scene):
     def construct(self):
         
@@ -46,8 +47,13 @@ class Intro(Scene):
         dalle_images = []
         for i in range(len(img_positions)):
             dalle_images.append(
+<<<<<<< HEAD
                 ImageMobject("img/dalle/p{}.jpg".format((i % num_img)+1)).scale_to_fit_width(2).move_to(
                     img_positions[i]
+=======
+                ImageMobject("img/dalle/p{}.jpg".format(i + 1)).scale_to_fit_width(2).move_to(
+                    random.choice([-4, -2, 0, 2, 4]) * RIGHT + random.choice([-2, 0, 2]) * UP
+>>>>>>> automatic colouting
                 )
             )
 
@@ -64,33 +70,33 @@ class Intro(Scene):
         self.play(
             AnimationGroup(
                 *anims,
-                lag_ratio = 0.1
+                lag_ratio=0.1
             )
         )
         self.wait()
 
+
 class Polylog(Scene):
     def construct(self):
         authors = Tex(
-            r"\textbf{Václav Rozhoň, Vojtěch Rozhoň, Václav Volhejn}", 
+            r"\textbf{Václav Rozhoň, Vojtěch Rozhoň, Václav Volhejn}",
             color=text_color,
-            font_size = 40,
+            font_size=40,
         ).shift(
-            3*DOWN + 0*LEFT
+            3 * DOWN + 0 * LEFT
         )
 
         channel_name = Tex(r"polylog", color=GRAY)
         channel_name[0][1].set_color(ORANGE)
         channel_name.scale(4).shift(1 * UP)
 
-
         self.wait()
 
         logo_dalle = ImageMobject("img/D2.png").scale(0.5).set_z_index(100)
-        logo_solarized = ImageMobject("img/logo-solarized.png").scale(0.034).shift(0.3*UP+0.05*LEFT)
+        logo_solarized = ImageMobject("img/logo-solarized.png").scale(0.034).shift(0.3 * UP + 0.05 * LEFT)
         prompt_dalle = Tex(
-            r"DALL$\cdot$E 2 on prompt: A logo suitable for a youtube channel about computer science", 
-            color = GRAY
+            r"DALL$\cdot$E 2 on prompt: A logo suitable for a youtube channel about computer science",
+            color=GRAY
         ).scale(0.3).next_to(logo_dalle, DOWN)
 
         self.play(
@@ -107,7 +113,7 @@ class Polylog(Scene):
         )
 
         self.play(
-            logo_solarized.animate().move_to(2*LEFT + 1*UP + 0.55 * RIGHT),
+            logo_solarized.animate().move_to(2 * LEFT + 1 * UP + 0.55 * RIGHT),
             Write(authors),
             FadeIn(channel_name[0][0]),
             FadeIn(channel_name[0][2:])
@@ -136,8 +142,9 @@ class Statement(Scene):
 
         statement = ImageMobject(
             "img/statement.png",
-        ).scale_to_fit_width(scene_width/2.0).shift(scene_width/4 * LEFT + 8*DOWN)
-        statement_caption = Tex("Buds Re-hanging (Codeforces 1566E)", color = GRAY).scale(0.8).move_to(statement.get_center()).next_to(statement, UP)
+        ).scale_to_fit_width(scene_width / 2.0).shift(scene_width / 4 * LEFT + 8 * DOWN)
+        statement_caption = Tex("Buds Re-hanging (Codeforces 1566E)", color=GRAY).scale(0.8).move_to(
+            statement.get_center()).next_to(statement, UP)
 
         self.play(
             FadeIn(statement),
@@ -152,33 +159,31 @@ class Statement(Scene):
             example_edges,
             layout="kamada_kawai",
             layout_scale=tree_scale,
-            vertex_config={"radius": node_radius, "color": WHITE}, # for debugging
-            labels=True, # for debugging
+            vertex_config={"radius": node_radius, "color": WHITE},  # for debugging
+            labels=True,  # for debugging
             edge_config={"color": text_color},
-            root = 1
-        ).move_to(scene_width/4 * RIGHT)
+            root=1
+        ).move_to(scene_width / 4 * RIGHT)
 
         self.play(
             FadeIn(example_tree),
         )
         self.wait()
 
-
-
-        #This tree is also rooted, so each node except the root has one parent node and possibly some children. The nodes that have no children are called leaves – let’s highlight them in green.
+        # This tree is also rooted, so each node except the root has one parent node and possibly some children. The nodes that have no children are called leaves – let’s highlight them in green.
 
         highlight_box = Rectangle(
-            width = scene_width/2 - 0.5,
-            height = 0.8,
-            color = RED,
-        ).next_to(statement_caption, DOWN).shift(1.3*DOWN).set_z_index(100)
+            width=scene_width / 2 - 0.5,
+            height=0.8,
+            color=RED,
+        ).next_to(statement_caption, DOWN).shift(1.3 * DOWN).set_z_index(100)
 
         self.play(
             FadeIn(highlight_box),
         )
 
         self.play(
-            example_tree.animate().change_layout(rooted_position(pos_root = scene_width/4*RIGHT + 2*UP)),
+            example_tree.animate().change_layout(rooted_position(pos_root=scene_width / 4 * RIGHT + 2 * UP)),
             run_time=1
         )
         self.wait()
@@ -192,22 +197,22 @@ class Statement(Scene):
         # parent
         example_parent = example_tree.vertices[1]
         edge_parent = Line(
-            start = example_vertex.get_center(),
-            end = example_parent.get_center(),
-            color = RED,
+            start=example_vertex.get_center(),
+            end=example_parent.get_center(),
+            color=RED,
         )
         self.play(
             Create(edge_parent),
         )
         self.play(
-            Circumscribe(example_parent, shape = Circle, color = RED)
+            Circumscribe(example_parent, shape=Circle, color=RED)
         )
         self.play(
             Uncreate(edge_parent)
         )
         self.wait()
 
-        #children
+        # children
         example_children = [
             example_tree.vertices[3],
             example_tree.vertices[4],
@@ -215,27 +220,31 @@ class Statement(Scene):
         ]
         edge_children = [
             Line(
-                start = example_vertex.get_center(),
-                end = child.get_center(),
-                color = RED,
+                start=example_vertex.get_center(),
+                end=child.get_center(),
+                color=RED,
             ) for child in example_children
         ]
         self.play(
             *[Create(e) for e in edge_children],
         )
         self.play(
-            *[Circumscribe(child, shape = Circle, color = RED) for child in example_children]
+            *[Circumscribe(child, shape=Circle, color=RED) for child in example_children]
         )
         self.play(
             *[Uncreate(e) for e in edge_children],
             example_vertex.animate().set_color(GRAY)
         )
-        self.wait()    
-        
+        self.wait()
+
         # leaves
         leaves = example_tree.get_leaves()
         self.play(
+<<<<<<< HEAD
             *[example_tree.vertices[v].animate().set_color(BLUE) for v in leaves]
+=======
+            example_tree.animate().pretty_colour()
+>>>>>>> automatic colouting
         )
         self.wait()
 
@@ -243,20 +252,20 @@ class Statement(Scene):
 
         highlight_box.generate_target()
         highlight_box.target = Rectangle(
-            width = highlight_box.get_width(),
-            height = 1.4,
-            color = RED,
-        ).next_to(highlight_box, DOWN, buff = DEFAULT_MOBJECT_TO_MOBJECT_BUFFER/2.0)
+            width=highlight_box.get_width(),
+            height=1.4,
+            color=RED,
+        ).next_to(highlight_box, DOWN, buff=DEFAULT_MOBJECT_TO_MOBJECT_BUFFER / 2.0)
         self.play(
             MoveToTarget(highlight_box),
         )
         self.wait()
 
         arrow = Arrow(
-            start = ORIGIN,
-            end = ORIGIN + LEFT/2,
-            color = RED,
-        ).scale(3).move_to(3*LEFT + 0*DOWN)
+            start=ORIGIN,
+            end=ORIGIN + LEFT / 2,
+            color=RED,
+        ).scale(3).move_to(3 * LEFT + 0 * DOWN)
 
         self.play(
             Create(arrow)
@@ -273,28 +282,32 @@ class Statement(Scene):
         )
         self.wait()
 
-        #Now, we’re allowed to manipulate our tree it in the following way: we can take a bud and re-hang it and its children to another node of the tree. Notice that in this case, after we cut  this bud off the tree, this guy becomes a new bud, and after we put the bud back here, this guy stops being a leaf and also this is not a bud anymore. 
-        self.next_section(skip_animations = False)
+        # Now, we’re allowed to manipulate our tree it in the following way: we can take a bud and re-hang it and its children to another node of the tree. Notice that in this case, after we cut  this bud off the tree, this guy becomes a new bud, and after we put the bud back here, this guy stops being a leaf and also this is not a bud anymore.
+        self.next_section(skip_animations=False)
 
         highlight_box.generate_target()
         highlight_box.target = Rectangle(
-            width = highlight_box.get_width(),
-            height = 1.2,
-            color = RED,
-        ).next_to(highlight_box, DOWN, buff = DEFAULT_MOBJECT_TO_MOBJECT_BUFFER/2.0)
+            width=highlight_box.get_width(),
+            height=1.2,
+            color=RED,
+        ).next_to(highlight_box, DOWN, buff=DEFAULT_MOBJECT_TO_MOBJECT_BUFFER / 2.0)
         self.play(
             MoveToTarget(highlight_box),
         )
         self.wait()
 
+<<<<<<< HEAD
+=======
+        H = 1 * DOWN
+>>>>>>> automatic colouting
 
         example_tree.rehang_subtree(
             self,
             5,
             10,
             example_tree.vertices[10].get_center() + H,
-            1 *DOWN,
-            1*LEFT + 1 * DOWN,
+            1 * DOWN,
+            1 * LEFT + 1 * DOWN,
         )
 
         example_tree.rehang_subtree(
@@ -316,20 +329,26 @@ class Statement(Scene):
         )
 
         self.wait()
+<<<<<<< HEAD
         
         #And now the question is: You’re allowed to do these operations any number of times with any buds you choose. If you do the operations as cleverly as possible, what’s the lowest number of leaves the tree can have? For example, the number of leaves at the beginning is 7. You can see how it changes when we do the operations and the lowest we can get seems to be 5.
+=======
+        return
+        # And now the question is: You’re allowed to do these operations any number of times with any buds you choose. If you do the operations as cleverly as possible, what’s the lowest number of leaves the tree can have? For example, the number of leaves at the beginning is 7. You can see how it changes when we do the operations and the lowest we can get seems to be 5.
+>>>>>>> automatic colouting
 
         highlight_box.generate_target()
         highlight_box.target = Rectangle(
-            width = highlight_box.get_width(),
-            height = 0.4,
-            color = RED,
-        ).next_to(highlight_box, DOWN, buff = DEFAULT_MOBJECT_TO_MOBJECT_BUFFER/2.0)
+            width=highlight_box.get_width(),
+            height=0.4,
+            color=RED,
+        ).next_to(highlight_box, DOWN, buff=DEFAULT_MOBJECT_TO_MOBJECT_BUFFER / 2.0)
         self.play(
             MoveToTarget(highlight_box),
         )
         self.wait()
 
+<<<<<<< HEAD
         example_tree.rehang_subtree(
             self,
             5,
@@ -338,6 +357,9 @@ class Statement(Scene):
             1 *DOWN,
             1*LEFT + 1 * DOWN,
         )
+=======
+        # TODO
+>>>>>>> automatic colouting
 
         example_tree.rehang_subtree(
             self,
@@ -365,30 +387,29 @@ class Statement(Scene):
                 statement,
                 statement_caption,
                 highlight_box,
-            ).animate().shift(6*UP)
+            ).animate().shift(6 * UP)
         )
         self.wait()
 
         highlight_box.generate_target()
         highlight_box.target = Rectangle(
-            width = highlight_box.get_width(),
-            height = 1.4,
-            color = RED,
-        ).next_to(highlight_box, DOWN, buff = DEFAULT_MOBJECT_TO_MOBJECT_BUFFER/2.0).shift(0.3*DOWN)
+            width=highlight_box.get_width(),
+            height=1.4,
+            color=RED,
+        ).next_to(highlight_box, DOWN, buff=DEFAULT_MOBJECT_TO_MOBJECT_BUFFER / 2.0).shift(0.3 * DOWN)
         self.play(
             MoveToTarget(highlight_box),
         )
         self.wait()
 
-
         # There are examples in the problem statement to make this clearer. Let’s look at the first one: the tree looks like this. It has four leaves. But if we rehang this bud here and this bud there, we get a tree with two leaves, which is the correct answer.
 
         highlight_box.generate_target()
         highlight_box.target = Rectangle(
-            width = highlight_box.get_width(),
-            height = 1.7,
-            color = RED,
-        ).next_to(highlight_box, DOWN, buff = DEFAULT_MOBJECT_TO_MOBJECT_BUFFER/2.0).shift(2.5*DOWN)
+            width=highlight_box.get_width(),
+            height=1.7,
+            color=RED,
+        ).next_to(highlight_box, DOWN, buff=DEFAULT_MOBJECT_TO_MOBJECT_BUFFER / 2.0).shift(2.5 * DOWN)
         self.play(
             MoveToTarget(highlight_box),
         )
@@ -403,10 +424,10 @@ class Statement(Scene):
             sample_edges,
             layout="kamada_kawai",
             layout_scale=tree_scale,
-            vertex_config={"radius": node_radius, "color": WHITE}, # for debugging
-            labels=True, # for debugging
+            vertex_config={"radius": node_radius, "color": WHITE},  # for debugging
+            labels=True,  # for debugging
             edge_config={"color": text_color}
-        )#.move_to(scene_width/4 * RIGHT)
+        )  # .move_to(scene_width/4 * RIGHT)
 
         H = 1.0 * DOWN
         W = 0.6 * RIGHT
@@ -416,11 +437,11 @@ class Statement(Scene):
                 2: H - W,
                 3: H,
                 4: H + W,
-                5: 2*H - 3*W/2,
-                6: 2*H - W/2,
-                7: 2*H + W,
+                5: 2 * H - 3 * W / 2,
+                6: 2 * H - W / 2,
+                7: 2 * H + W,
             }
-        ).move_to(scene_width/4 * RIGHT + 1*UP)
+        ).move_to(scene_width / 4 * RIGHT + 1 * UP)
 
         self.play(
             Create(sample_tree),
@@ -432,13 +453,13 @@ class Statement(Scene):
                 statement,
                 statement_caption,
                 highlight_box,
-            ).animate().shift(4*UP)
+            ).animate().shift(4 * UP)
         )
         highlight_box2 = Rectangle(
-            width = highlight_box.get_width(),
-            height = 0.3,
-            color = RED,
-        ).move_to(highlight_box.get_center()).shift(5.5*DOWN)
+            width=highlight_box.get_width(),
+            height=0.3,
+            color=RED,
+        ).move_to(highlight_box.get_center()).shift(5.5 * DOWN)
         self.play(
             Create(highlight_box2),
         )
@@ -679,7 +700,6 @@ class Solution(Scene):
 
         self.wait(10)
 
-
 class Explore(Scene):
     def construct(self):
 
@@ -709,18 +729,18 @@ class Explore(Scene):
             root=1,
             edge_config={"color": text_color}
         )
-        example_tree.change_layout(rooted_position(pos_root = 2*UP))
+        example_tree.change_layout(rooted_position(pos_root=2 * UP))
         self.add(example_tree)
         return
 
-        H = 1*DOWN
+        H = 1 * DOWN
         example_tree.rehang_subtree(
             self,
             5,
             10,
             example_tree.vertices[10].get_center() + H,
-            1 *DOWN,
-            1*LEFT + 1 * DOWN,
+            1 * DOWN,
+            1 * LEFT + 1 * DOWN,
         )
 
         # v_from = 2
@@ -742,7 +762,6 @@ class Explore(Scene):
 
         # scene.wait(4)
 
-
         # self.play(
         #     subtree.animate().shift(1*LEFT)
         # )
@@ -751,7 +770,6 @@ class Explore(Scene):
         #     MoveAlongPath(subtree, Line(UP, DOWN))
         # )
         return
-
 
         example_tree.add_subtree(scene, subtree, v_to)
 
@@ -786,8 +804,8 @@ class Explore(Scene):
         self.wait(1)
 
         self.play(
-            subtree3.animate().shift(2*LEFT),
-            subtree4.animate().shift(2*RIGHT)
+            subtree3.animate().shift(2 * LEFT),
+            subtree4.animate().shift(2 * RIGHT)
         )
 
         example_tree.add_subtree(self, subtree, 1)
@@ -798,123 +816,4 @@ class Explore(Scene):
         example_tree.pretty_colour()
         self.wait(3)
 
-        return 
-
-
-        forest = Forest(example_tree, solarized.BLUE, solarized.CYAN)
-
-        example_tree.add_updater(colour_function)
-
-        budCounter = Integer(0, color=RED).shift(3*UP)
-        budCounter.add_updater(lambda x: x.set_value(forest.get_leaves_cnt()))
-
-        self.add(budCounter)
-
-        # rooted version
-        self.add(example_tree)
-
-        self.play(
-            example_tree.animate().change_layout(rooted_position()),
-            run_time=1
-        )
-        self.wait(2)
-
-        new_tree = forest.remove_subtree_from_tree(0, 5)
-        new_tree.add_updater(colour_function)
-
-        new_tree2 = forest.remove_subtree_from_tree(0, 12)
-        new_tree2.add_updater(colour_function)
-        self.add(new_tree)
-        self.add(new_tree2)
-        self.remove(example_tree)
-        self.add(example_tree)
-
-        self.play(
-            new_tree.animate().shift(2*LEFT),
-            run_time=1
-        )
-        self.play(
-            new_tree2.animate().shift(2 * RIGHT),
-            run_time=1
-        )
-        new_tree3 = forest.remove_subtree_from_tree(0, 2)
-        new_tree3.add_updater(colour_function)
-
-        new_tree4 = forest.remove_subtree_from_tree(0, 9)
-        new_tree4.add_updater(colour_function)
-        self.add(new_tree3)
-        self.add(new_tree4)
-        self.remove(example_tree)
-        self.add(example_tree)
-
-        self.play(
-            new_tree3.animate().shift(2 * LEFT),
-            run_time=1
-        )
-        self.play(
-            new_tree4.animate().shift(2 * RIGHT),
-            run_time=1
-        )
-        self.wait(2)
-
-        forest.remove_updaters(colour_function)
-
-
-        self.play(
-            new_tree4.animate().shift(2 * LEFT),
-            run_time=1
-        )
-        self.play(
-            new_tree3.animate().shift(2 * RIGHT),
-            run_time=1
-        )
-        self.play(
-            new_tree2.animate().shift(2 * LEFT),
-            run_time=1
-        )
-        self.play(
-            new_tree.animate().shift(2 * RIGHT),
-            run_time=1
-        )
-        colours = {}
-        leaves = forest.get_leaves()
-        buds = forest.get_buds()
-        for leaf in leaves:
-            colours[leaf] = solarized.RED
-        for bud in buds:
-            colours[bud] = solarized.YELLOW
-
-        forest.add_subtree_to_tree(3, 0, 1, 0)
-        self.remove(new_tree3)
-        forest.add_subtree_to_tree(0, 3, 2, 2)
-        self.remove(new_tree)
-        forest.add_subtree_to_tree(1, 2, 1, 1)
-        self.remove(new_tree4)
-        tr = forest.add_subtree_to_tree(0, 1, 11, 0)
-        self.remove(new_tree2)
-        self.remove(example_tree)
-        self.add(tr)
-        tr.set_colors(colours)
-        forest.pretty_colour(solarized.BLUE, solarized.CYAN)
-        self.play(
-            tr.animate().change_layout(rooted_position()),
-            run_time=1
-        )
-        self.wait(2)
-
-        # example_tree.add_subtree(new_tree3, 1)
-        # self.remove(new_tree3)
-        # self.remove(example_tree)
-        # self.add(example_tree)
-        # example_tree.add_subtree(new_tree, 2)
-        # self.remove(new_tree)
-        # example_tree.add_subtree(new_tree4, 1)
-        # self.remove(new_tree4)
-        # example_tree.add_subtree(new_tree2, 11)
-        # self.remove(new_tree2)
-        # self.remove(example_tree)
-        # self.add(example_tree)
-        # example_tree.set_colors(colours)
-        # forest.pretty_colour(solarized.BLUE, solarized.CYAN)
-        # self.wait(2)
-
+        return
