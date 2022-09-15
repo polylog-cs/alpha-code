@@ -410,10 +410,17 @@ class Tree(Graph):
         scene.add(self, subtree, parent_edge)
         subtree.pretty_colour()
 
+        center = subtree[subtree.get_root()].get_center()
+        circle = Circle.from_three_points(center + 0.5 * UP, center + 0.5 * DOWN, center + 0.5 * LEFT)
+        always(circle.next_to, subtree[subtree.get_root()], 0)
+        print(subtree.get_root())
+
         # delete the parent edge
         scene.play(
             Uncreate(parent_edge),
+            Create(circle)
         )
+
         for k, v in self.get_colours().items():
             scene.play(
                 self[k].animate().set_fill(v)
@@ -481,7 +488,6 @@ class Tree(Graph):
             if self[vertex].get_color().__str__() != leaf_colour.__str__():
                 colours[vertex] = leaf_colour
         for vertex in buds:
-            print(vertex, self[vertex].get_color().__str__(), bud_colour.__str__())
             if self[vertex].get_color().__str__() != bud_colour.__str__():
                 colours[vertex] = bud_colour
         return colours
