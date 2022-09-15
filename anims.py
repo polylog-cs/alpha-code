@@ -1,10 +1,23 @@
 from random import randrange
+from unittest import skip
 
 import solarized
 from util import *
 
 scene_width = 14.2
+tree_scale = 3
+node_radius = 0.2
 
+
+def sugar(scene, tree, n1, n2, n_sh):
+    tree.rehang_subtree(
+        scene,
+        n1,
+        n2,
+        tree.vertices[n2].get_center() + n_sh * sh +  H,
+        2 * DOWN,
+        2 * DOWN,
+    )
 
 class Intro(Scene):
     def construct(self):
@@ -106,7 +119,7 @@ class Polylog(Scene):
         )
         self.wait()
 
-class ProblemStatement(Scene):
+class Statement(Scene):
     def construct(self):
         self.next_section(skip_animations=True)
 
@@ -132,8 +145,7 @@ class ProblemStatement(Scene):
         )
         self.wait()
 
-        tree_scale = 3
-        node_radius = 0.2
+
 
         example_tree = Tree(
             example_vertices,
@@ -223,7 +235,7 @@ class ProblemStatement(Scene):
         # leaves
         leaves = example_tree.get_leaves()
         self.play(
-            *[example_tree.vertices[v].animate().set_color(GREEN) for v in leaves]
+            *[example_tree.vertices[v].animate().set_color(BLUE) for v in leaves]
         )
         self.wait()
 
@@ -275,7 +287,6 @@ class ProblemStatement(Scene):
         )
         self.wait()
 
-        H = 1*DOWN
 
         example_tree.rehang_subtree(
             self,
@@ -434,10 +445,255 @@ class ProblemStatement(Scene):
 
         self.wait()
 
+class Solution(Scene):
+    def construct(self):
+        self.next_section(skip_animations=True)
+        num_leaves = Tex(r"\# leaves: ", color = BLUE).move_to(6*LEFT)
+        num_leaves_counter = Integer(7, color = BLUE).next_to(num_leaves, RIGHT)
+
+        example_tree = Tree(
+            example_vertices,
+            example_edges,
+            layout=rooted_position(pos_root = 3*UP),
+            layout_scale=tree_scale,
+            vertex_config={"radius": node_radius, "color": WHITE}, # for debugging
+            labels=True, # for debugging
+            edge_config={"color": text_color},
+            root = 1
+        )
+
+        self.play(
+            FadeIn(example_tree),
+            FadeIn(num_leaves),
+            FadeIn(num_leaves_counter),
+        )
+        self.wait()
+
+        # Then I tried to solve the problem manually for this tree. I noticed that if I take this bud [vrchol 5] and put it for example here, I get rid of one leaf, so that is good. 
+        example_tree.rehang_subtree(
+            self,
+            5,
+            10,
+            example_tree.vertices[10].get_center() + H - sh,
+            2 * DOWN,
+            2 * DOWN,
+        )
+        self.play(
+            Flash(
+                example_tree.vertices[10],
+                color = BLUE,
+            )
+        )
+        self.wait()
+
+        # Also, this guy now becomes a bud, so I can again hang it somewhere else and now the number of leaves drops down to 5. This turns out to be the smallest possible number, but at this point this was not clear at all.
+        # self.play(
+        #     Flash(
+        #         example_tree.vertices[2],
+        #         color = RED,
+        #     )
+        # )
+        # self.wait()
+        sugar(self, example_tree, 2, 6, 0)
+
+        # So I continued playing with the tree and for quite some time I did not have much of an idea about what was happening until I realized the following thing. Let’s look for example at this bud and circle it and its leaves. And then do some random operations. You can see that the bud and its leaves always stay together, they never separate.
+
+        sugar(self, example_tree, 2, 1, -2)
+
+        sugar(self, example_tree, 5, 1, -5)
+
+        sugar(self, example_tree, 12, 1, 5)
+
+        sugar(self, example_tree, 12, 10, 0)
+
+
+        sugar(self, example_tree, 5, 3, 0)
+
+        sugar(self, example_tree, 5, 4, 0)
+
+        sugar(self, example_tree, 5, 13, 0)
+
+        sugar(self, example_tree, 2, 8, 0)
+
+        sugar(self, example_tree, 2, 11, 0)
+
+        sugar(self, example_tree, 5, 1, -2)
+
+        # So I continued playing with the tree and for quite some time I did not have much of an idea about what was happening until I realized the following thing. Let’s look for example at this bud and circle it and its leaves. And then do some random operations. You can see that the bud and its leaves always stay together, they never separate.
+
+        # TODO circle 5
+
+        rel_pos_5 = 0.5*UP
+        circle5 = CubicBezier(
+            ORIGIN,
+            1.4*(2*LEFT + 2*DOWN),
+            1.4*(2*RIGHT + 2*DOWN),
+            ORIGIN,
+            color = BLACK
+        ).move_to(
+            example_tree.vertices[5].get_center()
+        ).shift(rel_pos_5)
+
+        # self.play(
+        #     FadeIn(circle5)
+        # )
+        # circle5.add_updater(
+        #     lambda m: m.move_to(
+        #         example_tree.vertices[5].get_center()
+        #     ).shift(
+        #         rel_pos_5
+        #     )
+        # )
+
+        sugar(self, example_tree, 12, 6, 0)
+
+        sugar(self, example_tree, 2, 8, 0)
+
+        sugar(self, example_tree, 12, 1, -5)
+
+        sugar(self, example_tree, 2, 10, 0)
+
+        sugar(self, example_tree, 5, 11, 0)
+
+        sugar(self, example_tree, 12, 5, 2)
+
+        #TODO more animations
+
+        # return back
+        sugar(self, example_tree, 2, 1, -2)
+
+
+        sugar(self, example_tree, 12, 10, 0)
+
+        sugar(self, example_tree, 5, 2, 1)
+
+        sugar(self, example_tree, 12, 11, 0)
+       
+
+
+        # And that holds in general. I realized that I can imagine repeatedly cutting the buds from the tree in any order like this. 
+
+        #TODO more animations
+        self.next_section(skip_animations=False)
+        
+        sub5 = example_tree.remove_subtree(self, 5)
+        self.play(
+            sub5.animate().shift(2*DOWN)
+        )
+
+        sub2 = example_tree.remove_subtree(self, 2)
+        self.play(
+            sub2.animate().shift(1*DOWN)
+        )
+
+        sub12 = example_tree.remove_subtree(self, 12)
+        self.play(
+            sub12.animate().shift(1*DOWN)
+        )
+
+        sub9 = example_tree.remove_subtree(self, 9)
+        self.play(
+            sub9.animate().shift(1*DOWN)
+        )
+        self.wait()
+
+        # Now I draw the circle around each bud and put them back. 
+        
+        self.play(
+            sub9.animate().shift(1*UP)
+        )
+        example_tree.add_subtree(self, sub9, 1)
+
+        self.play(
+            sub12.animate().shift(-1*DOWN)
+        )
+        example_tree.add_subtree(self, sub12, 11)
+
+        self.play(
+            sub2.animate().shift(-1*DOWN)
+        )
+        example_tree.add_subtree(self, sub2, 1)
+
+        self.play(
+            sub5.animate().shift(-2*DOWN)
+        )
+        example_tree.add_subtree(self, sub5, 2)
+        # If I now do some random bud-cutting operations, you see that the nodes in the same circle always stay together. 
+        
+        #TODO more animations
+
+        self.play(
+            *[
+                Flash(example_tree.vertices[v], color = RED) for v in red_nodes
+            ]
+        )
+        self.wait()
+        
+        self.play(
+            *[
+                Flash(example_tree.vertices[v], color = BLUE) for v in blue_nodes
+            ]
+        )
+        self.wait()
+        
+        # Ok, now we understand what rehanging is doing quite well, so what is again the problem we actually want to solve? Right, we want as few leaves as possible. Hm, can we somehow use the fact that leaves are all blue nodes? 
+
+        blue_nonleaves = [1, 11]
+        blue_leaves = [x for x in blue_nodes if x not in blue_nonleaves]
+
+        circles_leaves = [
+            Circle(radius = 0.3, color = BLUE).move_to(example_tree.vertices[v])
+            for v in blue_leaves
+        ]
+        circles_nonleaves = [
+            Circle(radius = 0.3, color = BLUE).move_to(example_tree.vertices[v])
+            for v in blue_nonleaves
+        ]
+
+        # Well, instead of minimizing the number of leaves we can maximize the number of blue nodes that are not leaves. That means we want as many as possible of these guys. 
+        self.play(
+            *[
+                Create(c) for c in circles_leaves
+            ]
+        )
+        self.wait()        
+
+        
+        self.play(
+            *[
+                Uncreate(c) for c in circles_leaves
+            ],
+            *[
+                Create(c) for c in circles_nonleaves
+            ]
+        )
+        self.wait()        
+        self.play(
+            *[
+                Uncreate(c) for c in circles_nonleaves
+            ],
+        )
+        self.wait()
+
+        # These blue nodes are not leaves, because they have at least one red child that covers them. This child needs to be a red node. 
+
+        self.wait(10)
 
 
 class Explore(Scene):
     def construct(self):
+
+        curve = CubicBezier(
+            ORIGIN,
+            3*(2*LEFT + 2*DOWN),
+            3*(2*RIGHT + 2*DOWN),
+            ORIGIN,
+            color = BLACK
+        )
+
+        self.add(curve)
+
+        return
         tree_scale = 3
         node_radius = 0.2
 

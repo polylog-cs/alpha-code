@@ -45,6 +45,9 @@ example_edges = [
     (11, 12),
     (12, 13),
 ]
+red_nodes = [2, 5, 9, 12]
+blue_nodes = [x for x in range(1, 14) if x not in red_nodes]
+
 
 sample_vertices = list(range(1, 8))
 sample_edges = [
@@ -56,9 +59,13 @@ sample_edges = [
     (4, 7),
 ]
 
+H = 1*DOWN
+sh = 0.5 * RIGHT
 
-def rooted_position(pos_root=ORIGIN, sh=0.5 * RIGHT, SH=1 * RIGHT, H=1 * DOWN):
+def rooted_position(pos_root=ORIGIN):
+    SH = 2*sh
     positions = {}
+
 
     positions[1] = pos_root
 
@@ -441,6 +448,7 @@ class Tree(Graph):
 
         self.add_subtree(scene, subtree, v_to)
         scene.remove(curve)
+        scene.wait()
 
     def get_leaves(self) -> Set[int]:
         res = set()
