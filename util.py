@@ -415,7 +415,7 @@ class Tree(Graph):
     def get_buds_cnt(self):
         return len(self.get_buds())
 
-    def get_colours(self, bud_colour=solarized.CYAN, leaf_colour=solarized.GREEN):
+    def get_colours(self, bud_colour=solarized.RED, leaf_colour=solarized.BLUE):
         colours = {}
         leaves = self.get_leaves()
         buds = self.get_buds()
@@ -427,7 +427,7 @@ class Tree(Graph):
             colours[vertex] = bud_colour
         return colours
 
-    def get_colours_to_set(self, bud_colour=solarized.CYAN, leaf_colour=solarized.GREEN):
+    def get_colours_to_set(self, bud_colour=solarized.RED, leaf_colour=solarized.BLUE):
         colours = {}
         leaves = self.get_leaves()
         buds = self.get_buds()
@@ -442,10 +442,10 @@ class Tree(Graph):
                 colours[vertex] = bud_colour
         return colours
 
-    def pretty_colour(self, bud_colour=solarized.CYAN, leaf_colour=solarized.GREEN):
+    def pretty_colour(self, bud_colour=solarized.RED, leaf_colour=solarized.BLUE):
         self.set_colors(self.get_colours_to_set(bud_colour, leaf_colour), None)
 
-    def change_colours(self, bud_colour=solarized.CYAN, leaf_colour=solarized.GREEN):
+    def change_colours(self, bud_colour=solarized.RED, leaf_colour=solarized.BLUE):
         colours = {}
         leaves = self.get_leaves()
         buds = self.get_buds()
