@@ -801,8 +801,46 @@ class Solution(Scene):
         sugar(self, example_tree, 2, 11, 0)
         sugar(self, example_tree, 5, 4, 0)
 
+
+class Code(Scene):
+    def construct(self):
         # Nice! So we have a solution. We simply code a program that first colors the nodes blue and red so that the colors correspond to cutting the buds from our tree one by one. Then we return the number of blue nodes - the number of red nodes as the answer.        
 
+        code = ImageMobject("img/code.png").scale_to_fit_height(8).align_to(Dot().move_to(7.1*LEFT), LEFT)
+
+
+        dfs_brace = Brace(Line(ORIGIN, 2*DOWN), RIGHT, color = GRAY).move_to(0.5*RIGHT + 2.5*UP)
+        input_brace = Brace(Line(ORIGIN, 1.5*DOWN), RIGHT, color = GRAY).next_to(dfs_brace, DOWN)
+        run_brace = Brace(Line(ORIGIN, 0.3*DOWN), RIGHT, color = GRAY).next_to(input_brace, DOWN)
+        ans_brace = Brace(Line(ORIGIN, 1.0*DOWN), RIGHT, color = GRAY).next_to(run_brace, DOWN)
+        testcase_brace = Brace(Line(ORIGIN, 1.0*DOWN), RIGHT, color = GRAY).next_to(ans_brace, DOWN).shift(0.3*DOWN)
+        
+        dfs_text = Group(
+            Tex(r"Compute blue and red nodes; ", color = GRAY).scale(0.5),
+            Tex(r"a node is blue if and only if all children are red. ", color = GRAY).scale(0.5)
+        ).arrange(DOWN).next_to(dfs_brace, RIGHT)
+        dfs_text[0].align_to(dfs_text[1], LEFT)
+        input_text = Tex(r"Read the input. ", color = GRAY).scale(0.5).next_to(input_brace, RIGHT)
+        run_text = Tex(r"Run the blue/red computation.  ", color = GRAY).scale(0.5).next_to(run_brace, RIGHT)
+        ans_text = Tex(r"Compute the number of blue - red nodes. ", color = GRAY).scale(0.5).next_to(ans_brace, RIGHT)
+        testcase_text = Tex(r"Solve all testcases. ", color = GRAY).scale(0.5).next_to(testcase_brace, RIGHT)
+       
+
+        self.add(
+            code,
+            dfs_brace,
+            input_brace,
+            run_brace,
+            ans_brace,
+            testcase_brace,
+            dfs_text,
+            input_text,
+            run_text,
+            ans_text,
+            testcase_text,
+        )
+
+        
         self.wait(10)
 
 

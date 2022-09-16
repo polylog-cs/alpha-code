@@ -15,7 +15,6 @@ void dfs(int u, int parent, vector<vector<int> > &G, vector<bool> &is_blue){
 void solve(){
     int n;
     cin >> n;
-
     vector<vector<int> > G(n);
     for(int i = 0; i < n-1; ++i){
         int u, v;
@@ -32,9 +31,7 @@ void solve(){
         if(is_blue[u]) ans++;
         else ans--;
     }
-
     ans += 1 - is_blue[0];
-
     cout << ans << endl;
 }
 
