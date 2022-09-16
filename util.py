@@ -99,6 +99,8 @@ def flatten(lst):
 
 class Forest():
     trees = {}
+    isUpdating = False
+    last = 0
 
     @staticmethod
     def add(tree):
@@ -110,7 +112,10 @@ class Forest():
 
     @staticmethod
     def get_leaves_cnt():
-        return sum(tree.get_leaves_cnt() for _, tree in Forest.trees.items())
+        if Forest.isUpdating:
+            return Forest.last
+        Forest.last = sum(tree.get_leaves_cnt() for _, tree in Forest.trees.items())
+        return Forest.last
 
     @staticmethod
     def get_buds():
@@ -369,6 +374,7 @@ class Tree(Graph):
         return subtree
 
     def rehang_subtree(self, scene, v_from, v_to, new_pos, dir1, dir2):
+        Forest.isUpdating = True
         root_pos = self.vertices[v_from].get_center()
 
         scene.play(
@@ -389,7 +395,7 @@ class Tree(Graph):
         scene.play(
             MoveAlongPath(subtree, curve)
         )
-
+        Forest.isUpdating = False
         self.add_subtree(scene, subtree, v_to)
         scene.remove(curve)
         scene.wait()

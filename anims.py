@@ -523,11 +523,11 @@ class Solution(Scene):
         # )
         # self.wait()
         sugar(self, example_tree, 2, 6, 0)
-        return
         # So I continued playing with the tree and for quite some time I did not have much of an idea about what was happening until I realized the following thing. Let’s look for example at this bud and circle it and its leaves. And then do some random operations. You can see that the bud and its leaves always stay together, they never separate.
         
         sugar(self, example_tree, 2, 1, -2)
         sugar(self, example_tree, 5, 1, -5)
+        return
         sugar(self, example_tree, 12, 1, 5)
         sugar(self, example_tree, 12, 10, 0)
         sugar(self, example_tree, 5, 3, 0)
