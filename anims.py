@@ -425,8 +425,7 @@ class Statement(Scene):
             edge_config={"color": text_color}
         )  # .move_to(scene_width/4 * RIGHT)
 
-        H = 1.0 * DOWN
-        W = 0.6 * RIGHT
+        W = 2*sh
         sample_tree.change_layout(
             {
                 1: ORIGIN,
@@ -839,7 +838,90 @@ class Code(Scene):
             testcase_text,
         )
 
+        self.wait()
+
+        self.remove(*self.mobjects)
+        self.add(code)
         
+
+        sample_tree = Tree(
+            sample_vertices,
+            sample_edges,
+            layout=            {
+                1: ORIGIN,
+                2: H - 2 * sh,
+                3: H,
+                4: H + 2 * sh,
+                5: 2 * H - 3 * 2 * sh / 2,
+                6: 2 * H - 2 * sh / 2,
+                7: 2 * H + 2 * sh,
+            },
+            layout_scale=tree_scale,
+            vertex_config={"radius": node_radius, "color": WHITE},  # for debugging
+            labels=True,  # for debugging
+            edge_config={"color": text_color},
+            root = 1,
+        ).move_to(scene_width / 4 * RIGHT + 2 * UP)
+
+        self.play(
+            Create(sample_tree),
+        )
+        self.wait()
+        sample_tree.pretty_colour()
+        self.wait()
+
+        comp = Tex(r"{{\# blue nodes}}{{ $-$ }}{{ \# red nodes }}", color = GRAY).move_to(sample_tree.get_center() + 4.7*DOWN)
+        comp[0].set_color(BLUE)
+        comp[2].set_color(RED)
+        self.play(FadeIn(comp))
+        self.play(
+            Transform(comp[0], Tex(r"4", color = BLUE).next_to(comp[1], LEFT)),
+        )
+        self.play(
+            Transform(comp[2], Tex(r"3", color = RED).next_to(comp[1], RIGHT)),
+        )
+
+        comp2 = Tex(r"$= 1$", color = GRAY).next_to(comp, RIGHT)
+        self.play(FadeIn(comp2))
+        self.wait()
+        comp3 = Tex(r"Answer = 2", color = GRAY).next_to(Group(comp, comp2), DOWN)
+        self.play(FadeIn(comp3))
+        self.wait()
+
+        sugar(self, sample_tree, 4, 3, 0)
+        sugar(self, sample_tree, 2, 7, 0)
+        self.wait()
+
+        ar = Arrow(
+            start = ORIGIN,
+            end = (1*RIGHT)/1.0,
+            color = RED,
+        ).move_to(
+            sample_tree.vertices[1].get_center() + (1*LEFT)/2.0
+        )
+        self.play(
+            FadeIn(ar)
+        )
+        self.wait()
+        self.play(FadeOut(ar))
+        self.wait()
+
+        ar = Arrow(
+            start = ORIGIN,
+            end = (1*LEFT)/1.0,
+            color = RED,
+        ).move_to(
+            2*DOWN + 0.5 * RIGHT
+        )
+
+        self.play(
+            FadeIn(ar)
+        )
+        self.wait()
+        self.play(FadeOut(ar))
+        self.wait()
+
+
         self.wait(10)
 
 
