@@ -472,15 +472,15 @@ class Solution(Scene):
         example_tree = Tree(
             example_vertices,
             example_edges,
-            layout=rooted_position(pos_root=3 * UP),
+            layout=rooted_position(),
             layout_scale=tree_scale,
             vertex_config={"radius": node_radius, "color": WHITE},  # for debugging
             labels=True,  # for debugging
             edge_config={"color": text_color},
             root=1
-        )
+        ).shift(3*UP)
 
-        num_leaves_counter.add_updater(lambda x: x.set_value(Forest.get_leaves_cnt()))
+        # num_leaves_counter.add_updater(lambda x: x.set_value(Forest.get_leaves_cnt()))
 
         self.play(
             FadeIn(example_tree),
@@ -488,7 +488,6 @@ class Solution(Scene):
             FadeIn(num_leaves_counter),
         )
         self.wait(2)
-
         # Then I tried to solve the problem manually for this tree. I noticed that if I take this bud [vrchol 5] and put it for example here, I get rid of one leaf, so that is good. 
         sugar(self, example_tree, 5, 10, -1)
         self.play(
@@ -498,6 +497,7 @@ class Solution(Scene):
             )
         )
         self.wait()
+        return
         # Also, this guy now becomes a bud, so I can again hang it somewhere else and now the number of leaves drops down to 5. This turns out to be the smallest possible number, but at this point this was not clear at all.
         # self.play(
         #     Flash(
@@ -509,7 +509,7 @@ class Solution(Scene):
         sugar(self, example_tree, 2, 6, 0)
 
         # So I continued playing with the tree and for quite some time I did not have much of an idea about what was happening until I realized the following thing. Let’s look for example at this bud and circle it and its leaves. And then do some random operations. You can see that the bud and its leaves always stay together, they never separate.
-
+        
         sugar(self, example_tree, 2, 1, -2)
         sugar(self, example_tree, 5, 1, -5)
         sugar(self, example_tree, 12, 1, 5)
