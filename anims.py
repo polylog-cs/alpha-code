@@ -289,7 +289,7 @@ class Statement(Scene):
 
         H = 1 * DOWN
 
-        example_tree.add_circle(5, self)
+        #example_tree.add_object_to_vertex(5, self)
         example_tree.rehang_subtree(
             self,
             5,
@@ -298,7 +298,7 @@ class Statement(Scene):
             1 * DOWN,
             1 * LEFT + 1 * DOWN,
         )
-        example_tree.add_circle(5, self)
+        #example_tree.add_object_to_vertex(5, self, )
 
         example_tree.rehang_subtree(
             self,

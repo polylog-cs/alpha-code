@@ -414,11 +414,24 @@ class Tree(Graph):
         scene.play(
             Uncreate(parent_edge)
         )
+        scene.wait()
 
-        for k, v in self.get_colours().items():
+        #for k, v in self.get_colours().items():
+        #    scene.play(
+        #        self[k].animate.set_fill(v)
+        #    )
+
+        #ag = AnimationGroup(*[self[k].animate().set_fill(v) for k, v in self.get_colours().items()])
+
+        animations = [self[k].animate.set_fill(v) for k, v in self.get_colours().items()]
+        print(animations, self.get_colours().items())
+
+        if len(animations) > 0:
             scene.play(
-                self[k].animate().set_fill(v)
+                *animations
             )
+
+        scene.wait()
         return subtree
 
     def rehang_subtree(self, scene, v_from, v_to, new_pos, dir1, dir2):
@@ -447,12 +460,10 @@ class Tree(Graph):
         scene.remove(curve)
         scene.wait()
 
-    def add_circle(self, vertex: int, scene):
-        center = self[vertex].get_center()
-        circle = Circle.from_three_points(center + 0.5 * UP, center + 0.5 * DOWN, center + 0.5 * LEFT)
-        always(circle.next_to, self[vertex], 0)
+    def add_object_to_vertex(self, vertex: int, scene, object):
+        always(object.next_to, self[vertex], 0)
         scene.play(
-            Create(circle)
+            Create(object)
         )
 
     def get_leaves(self) -> Set[int]:
