@@ -70,7 +70,6 @@ class Intro(Scene):
         )
         self.wait()
 
-
 class Polylog(Scene):
     def construct(self):
         authors = Tex(
@@ -122,7 +121,7 @@ class Polylog(Scene):
 
 class Statement(Scene):
     def construct(self):
-        self.next_section(skip_animations=True)
+        self.next_section(skip_animations=False)
 
         caption = Tex("The Problem", color = GRAY).scale(3)
         self.play(
@@ -178,7 +177,7 @@ class Statement(Scene):
         )
 
         self.play(
-            example_tree.animate().change_layout(rooted_position(pos_root=scene_width / 4 * RIGHT + 2 * UP)),
+            example_tree.animate().change_layout(rooted_position(pos_root=scene_width / 4 * RIGHT + 3 * UP)),
             run_time=1
         )
         self.wait()
@@ -273,7 +272,7 @@ class Statement(Scene):
         )
         self.wait()
 
-        # Now, we’re allowed to manipulate our tree it in the following way: we can take a bud and re-hang it and its children to another node of the tree. Notice that in this case, after we cut  this bud off the tree, this guy becomes a new bud, and after we put the bud back here, this guy stops being a leaf and also this is not a bud anymore.
+        # Now, we’re allowed to manipulate our tree it in the following way: we can take a bud and re-hang it and its children to another node of the tree. 
         self.next_section(skip_animations=False)
 
         highlight_box.generate_target()
@@ -288,39 +287,56 @@ class Statement(Scene):
         self.wait()
 
         H = 1 * DOWN
-
-        example_tree.add_circle(5, self)
-        example_tree.rehang_subtree(
-            self,
-            5,
-            10,
-            example_tree.vertices[10].get_center() + H,
-            1 * DOWN,
-            1 * LEFT + 1 * DOWN,
-        )
-        example_tree.add_circle(5, self)
-
-        example_tree.rehang_subtree(
-            self,
-            5,
-            2,
-            example_tree.vertices[10].get_center() + H,
-            1*LEFT + 1 * DOWN,
-            1 *DOWN,
-        )
-
-        example_tree.rehang_subtree(
-            self,
-            5,
-            10,
-            example_tree.vertices[10].get_center() + H,
-            1 *DOWN,
-            1*LEFT + 1 * DOWN,
-        )
-
+        
+        sugar(self, example_tree, 5, 13, 0)
         self.wait()
-        return
+
+        # Notice that in this case, after we cut  this bud off the tree, this guy becomes a new bud, and after we put the bud back here, this guy stops being a leaf and also this is not a bud anymore.
+
+        ar = Arrow(
+            start = ORIGIN,
+            end = (1*RIGHT + 1*DOWN)/1.0,
+            color = RED,
+        ).move_to(
+            example_tree.vertices[2].get_center() + (1*LEFT + 1*UP)/2.0
+        )
+
+        self.play(
+            #Flash(example_tree.vertices[2], color = RED),
+            FadeIn(ar),
+        )
+        self.wait()
+
+        self.play(FadeOut(ar))
+        self.wait()
+
+        ar = Arrow(
+            start = ORIGIN,
+            end = (1*LEFT + 1*DOWN)/1.0,
+            color = RED,
+        ).move_to(example_tree.vertices[12].get_center() + (1*RIGHT + 1*UP)/2.0)
+
+        self.play(
+            #Flash(example_tree.vertices[12], color = RED),
+            FadeIn(ar),
+        )
+        self.wait()
+
+        self.play(
+            #Flash(example_tree.vertices[13], color = RED),
+            ar.animate().shift(H),
+        )
+        self.wait()
+
+        self.play(
+            FadeOut(ar)
+        )
+        self.wait()
+
+        
         # And now the question is: You’re allowed to do these operations any number of times with any buds you choose. If you do the operations as cleverly as possible, what’s the lowest number of leaves the tree can have? For example, the number of leaves at the beginning is 7. You can see how it changes when we do the operations and the lowest we can get seems to be 5.
+
+        self.next_section(skip_animations=False)
 
         highlight_box.generate_target()
         highlight_box.target = Rectangle(
@@ -333,26 +349,35 @@ class Statement(Scene):
         )
         self.wait()
 
-        example_tree.rehang_subtree(
-            self,
-            12,
-            4,
-            example_tree.vertices[4].get_center() + H,
-            2 * DOWN,
-            2 * DOWN,
-        )
-
-        example_tree.rehang_subtree(
-            self,
-            5,
-            11,
-            example_tree.vertices[11].get_center() + H,
-            1 * DOWN,
-            1 * DOWN,
-        )
+        sugar(self, example_tree, 2, 10, 0)
+        sugar(self, example_tree, 5, 1, -2)
+        sugar(self, example_tree, 2, 13, 0)
+        sugar(self, example_tree, 5, 10, 0)
+        sugar(self, example_tree, 2, 1, -2)
+        sugar(self, example_tree, 5, 2, 1)
 
         self.wait()
-        # Because this is a coding problem, it is also important how large the input data is. You can see that the tree can have around 10^5 nodes, which means that our algorithm for computing the answer needs to have close to linear time complexity.
+
+        num_leaves = Tex(r"\# leaves: ", color = BLUE).move_to(1*RIGHT + 3*DOWN)
+        num_leaves_counter = Integer(7, color = BLUE).next_to(num_leaves, RIGHT)
+
+        self.play(
+            FadeIn(num_leaves),
+            FadeIn(num_leaves_counter)
+        )
+        self.wait()
+
+        sugar(self, example_tree, 5, 1, -5)
+        sugar(self, example_tree, 12, 1, 5)
+        sugar(self, example_tree, 12, 10, 0)
+        sugar(self, example_tree, 5, 3, 0)
+        sugar(self, example_tree, 5, 4, 0)
+        sugar(self, example_tree, 5, 13, 0)
+        sugar(self, example_tree, 2, 11, 0)
+        sugar(self, example_tree, 5, 3, 0)
+
+
+         # Because this is a coding problem, it is also important how large the input data is. You can see that the tree can have around 10^5 nodes, which means that our algorithm for computing the answer needs to have close to linear time complexity.
 
         self.play(
             Group(
@@ -440,7 +465,7 @@ class Statement(Scene):
 
 class Solution(Scene):
     def construct(self):
-        self.next_section(skip_animations=True)
+        self.next_section(skip_animations=False)
         num_leaves = Tex(r"\# leaves: ", color = BLUE).move_to(6*LEFT)
         num_leaves_counter = Integer(7, color = BLUE).next_to(num_leaves, RIGHT)
 
@@ -463,14 +488,7 @@ class Solution(Scene):
         self.wait()
 
         # Then I tried to solve the problem manually for this tree. I noticed that if I take this bud [vrchol 5] and put it for example here, I get rid of one leaf, so that is good. 
-        example_tree.rehang_subtree(
-            self,
-            5,
-            10,
-            example_tree.vertices[10].get_center() + H - sh,
-            2 * DOWN,
-            2 * DOWN,
-        )
+        sugar(self, example_tree, 5, 10, -1)
         self.play(
             Flash(
                 example_tree.vertices[10],
@@ -492,24 +510,14 @@ class Solution(Scene):
         # So I continued playing with the tree and for quite some time I did not have much of an idea about what was happening until I realized the following thing. Let’s look for example at this bud and circle it and its leaves. And then do some random operations. You can see that the bud and its leaves always stay together, they never separate.
 
         sugar(self, example_tree, 2, 1, -2)
-
         sugar(self, example_tree, 5, 1, -5)
-
         sugar(self, example_tree, 12, 1, 5)
-
         sugar(self, example_tree, 12, 10, 0)
-
-
         sugar(self, example_tree, 5, 3, 0)
-
         sugar(self, example_tree, 5, 4, 0)
-
         sugar(self, example_tree, 5, 13, 0)
-
         sugar(self, example_tree, 2, 8, 0)
-
         sugar(self, example_tree, 2, 11, 0)
-
         sugar(self, example_tree, 5, 1, -2)
 
         # So I continued playing with the tree and for quite some time I did not have much of an idea about what was happening until I realized the following thing. Let’s look for example at this bud and circle it and its leaves. And then do some random operations. You can see that the bud and its leaves always stay together, they never separate.
@@ -539,27 +547,16 @@ class Solution(Scene):
         # )
 
         sugar(self, example_tree, 12, 6, 0)
-
         sugar(self, example_tree, 2, 8, 0)
-
         sugar(self, example_tree, 12, 1, -5)
-
         sugar(self, example_tree, 2, 10, 0)
-
         sugar(self, example_tree, 5, 11, 0)
-
         sugar(self, example_tree, 12, 5, 2)
-
-        #TODO more animations
 
         # return back
         sugar(self, example_tree, 2, 1, -2)
-
-
         sugar(self, example_tree, 12, 10, 0)
-
         sugar(self, example_tree, 5, 2, 1)
-
         sugar(self, example_tree, 12, 11, 0)
        
 
@@ -615,6 +612,9 @@ class Solution(Scene):
         
         #TODO more animations
 
+        # Notice that I also colored all of these nodes with a shade of red, because those are the potential buds. By that I think that whenever you see a bud after doing some rehanging operations, it definitely has to be a red node. On the other hand, not all the red nodes are buds, only those that are currently at the bottom of the tree and have the bright red color. I also colored the rest of the nodes blue, because those are the potential leaves. Again, not all blue nodes are leaves, but whenever you see a leaf, it has to be blue. I again give a bright blue color to the actual leaves and otherwise the node gets an opaque blue color.  
+        
+        #TODO rethink
         self.play(
             *[
                 Flash(example_tree.vertices[v], color = RED) for v in red_nodes
@@ -630,7 +630,7 @@ class Solution(Scene):
         self.wait()
         
         # Ok, now we understand what rehanging is doing quite well, so what is again the problem we actually want to solve? Right, we want as few leaves as possible. Hm, can we somehow use the fact that leaves are all blue nodes? 
-
+        self.next_section(skip_animations=False)
         blue_nonleaves = [1, 11]
         blue_leaves = [x for x in blue_nodes if x not in blue_nonleaves]
 
@@ -666,7 +666,7 @@ class Solution(Scene):
         )
         self.wait()        
 
-        # These blue nodes are not leaves, because they have at least one red child that covers them. This child needs to be a red node. 
+        # These blue nodes are not leaves, because they have at least one   child that covers them. This child needs to be a red node. 
 
         arrows = [
             Arrow(start = example_tree.vertices[1], end = example_tree.vertices[2], color = RED, buff = 0.1),
@@ -689,6 +689,121 @@ class Solution(Scene):
         )
         self.wait()
 
+        # At this point I finally realized what was happening when I was trying to solve the problem manually. I started by rehanging this bud, which decreased the number of leaves by one. The reason this worked is that this bud was hung below a red node, which is kind of wasteful. So after I took the bud off, the number of leaves did not increase. 
+        
+        sugar(self, example_tree, 5, 10, 0)
+
+        ar = Arrow(
+            start = ORIGIN,
+            end = (1*RIGHT + 1*DOWN)/1.0,
+            color = RED,
+        ).move_to(
+            example_tree.vertices[2].get_center() + (1*LEFT + 1*UP)/2.0
+        )
+        self.play(
+            FadeIn(ar),
+        )
+        self.wait()
+
+        # Then I used my red node to cover one blue leaf and that decreased the number of leaves by one. 
+        
+        self.play(
+            ar.animate().shift(
+                example_tree.vertices[10].get_center()
+                - example_tree.vertices[2].get_center()
+            )
+        )
+        self.wait()
+
+        # But there was also this blue node with two red children, which is again kind of wasteful. So when I took this new bud off, I again did not create any new leaf. So I could use my bud to cover one more leaf. 
+
+        self.play(
+            ar.animate().shift(
+                example_tree.vertices[1].get_center()
+                - example_tree.vertices[10].get_center()
+            )
+        )
+        self.wait()
+        self.play(
+            FadeOut(ar)
+        )
+        self.wait()
+
+        sugar(self, example_tree, 2, 6, 0)
+
+        # And now it is clear that there is no better solution than having five leaves. That’s because in total we have 9 blue nodes but only four red nodes. These four nodes can cover at most four different blue nodes [šipky z červených do zelených], hence the smallest number of leaves we can hope for is 9-4 which is 5. 
+
+        label_blue = Tex(r"\# blue nodes $= 9$", color = BLUE).move_to(
+            4*LEFT + 1*DOWN
+        )
+        label_red = Tex(r"\# blue nodes $= 4$", color = RED).next_to(label_blue, DOWN)
+
+        self.play(
+            *[
+                Flash(example_tree.vertices[v], color = BLUE) for v in blue_nodes
+            ],
+            FadeIn(label_blue)
+        )
+        self.wait()
+        
+        self.play(
+            *[
+                Flash(example_tree.vertices[v], color = RED) for v in red_nodes
+            ],
+            FadeIn(label_red)
+        )
+        self.wait()
+        
+        arrows = [
+            Arrow(start = example_tree.vertices[2], end = example_tree.vertices[6], color = RED, buff = 0.1),
+            Arrow(start = example_tree.vertices[9], end = example_tree.vertices[1], color = RED, buff = 0.1),
+            Arrow(start = example_tree.vertices[12], end = example_tree.vertices[11], color = RED, buff = 0.1),
+            Arrow(start = example_tree.vertices[5], end = example_tree.vertices[10], color = RED, buff = 0.1),
+        ]
+        self.play(
+            *[Create(ar) for ar in arrows]
+        )
+        self.wait()
+        self.play(
+            *[Uncreate(ar) for ar in arrows]
+        )
+        self.wait()
+
+        label_dif = Tex(r"\# leaves $\ge 9 - 4 = 5$", color = GRAY).next_to(label_red, DOWN)
+        pos9 = 8
+        pos4 = pos9 + 2
+        
+        label_dif[0][10].set_color(RED)
+
+        self.play(
+            FadeOut(label_blue[0][:-1]),
+            FadeOut(label_red[0][:-1]),
+        )
+        self.play(
+            Succession(
+                Write(label_dif[0][0:pos9]),
+                label_blue[0][-1].animate().move_to(label_dif[0][pos9].get_center()),
+                Write(label_dif[0][pos9+1:pos4]),
+                label_red[0][-1].animate().move_to(label_dif[0][pos4].get_center()),
+                Write(label_dif[0][pos4+1:]),                
+            )
+        )
+
+        # Great! So can we always achieve this state where all the red nodes are fully utilized which makes the answer to be the number of blue nodes minus the number of red nodes? 
+        # It took me a while to figure it out but turns out we can! [tohle řešení se tam už někdy před tím objeví v random tazích] The solution I came up with was to start by disassembling the whole tree so that all buds are hanging below the root. 
+        
+        sugar(self, example_tree, 2, 1, -2)
+        sugar(self, example_tree, 5, 1, -5)
+        sugar(self, example_tree, 12, 1, 5)
+               
+        # Then, we can just stack them on top of each other like this. This way, every red node is covering a different blue node, so we achieve the best possible bound. 
+
+        sugar(self, example_tree, 9, 13, 0)
+        sugar(self, example_tree, 2, 11, 0)
+        sugar(self, example_tree, 5, 4, 0)
+
+        # Nice! So we have a solution. We simply code a program that first colors the nodes blue and red so that the colors correspond to cutting the buds from our tree one by one. Then we return the number of blue nodes - the number of red nodes as the answer.        
+
         self.wait(10)
 
 class Explore(Scene):
@@ -701,6 +816,7 @@ class Explore(Scene):
             ORIGIN,
             color = BLACK
         )
+
 
         self.add(curve)
 
