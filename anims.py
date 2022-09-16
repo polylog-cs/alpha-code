@@ -480,7 +480,7 @@ class Solution(Scene):
             root=1
         ).shift(3*UP)
 
-        # num_leaves_counter.add_updater(lambda x: x.set_value(Forest.get_leaves_cnt()))
+        num_leaves_counter.add_updater(lambda x: x.set_value(Forest.get_leaves_cnt()))
 
         self.play(
             FadeIn(example_tree),
@@ -506,7 +506,7 @@ class Solution(Scene):
         # )
         # self.wait()
         sugar(self, example_tree, 2, 6, 0)
-
+        return
         # So I continued playing with the tree and for quite some time I did not have much of an idea about what was happening until I realized the following thing. Let’s look for example at this bud and circle it and its leaves. And then do some random operations. You can see that the bud and its leaves always stay together, they never separate.
         
         sugar(self, example_tree, 2, 1, -2)

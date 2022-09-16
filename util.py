@@ -276,48 +276,6 @@ class Tree(Graph):
 
         return self.set_colors(vertex_colors, edge_colors)
 
-    def update_vertexes(self, vertex: int, position: int, root: int, new_vertexes: [int], new_edges: [(int, int)]):
-        res_vertexes = []
-        res_edges = []
-        all_vertexes = []
-
-        max_value_before_root = vertex
-        if position > 0:
-            max_value_before_root = self.get_largest_descendent(self.sons(vertex)[position - 1])
-
-        for v in self.vertices:
-            if v > max_value_before_root:
-                all_vertexes.append(v + len(new_vertexes))
-            else:
-                all_vertexes.append(v)
-
-        for v in new_vertexes:
-            all_vertexes.append(v + max_value_before_root - root + 1)
-
-        all_vertexes.sort()
-
-        map_new_vertexes = {}
-        i = 0
-        for v in all_vertexes:
-            i += 1
-            if v > max_value_before_root + len(new_vertexes):
-                map_new_vertexes[v - len(new_vertexes)] = i
-            elif v > max_value_before_root:
-                map_new_vertexes[v - (max_value_before_root - root + 1)] = i
-            else:
-                map_new_vertexes[v] = i
-            res_vertexes.append(i)
-
-        for a, b in self.edges:
-            res_edges.append((map_new_vertexes[a], map_new_vertexes[b]))
-
-        res_edges.append((map_new_vertexes[vertex], map_new_vertexes[root]))
-
-        for a, b in new_edges:
-            res_edges.append((map_new_vertexes[a], map_new_vertexes[b]))
-
-        return res_vertexes, res_edges
-
     def add_subtree(self, scene, subtree, vertex: int):
         subtree_layout = {}
         for v in subtree.vertices:
@@ -328,10 +286,6 @@ class Tree(Graph):
             end=self.vertices[vertex].get_center(),
             color=GRAY,
         )
-        Forest.remove(subtree)
-        scene.play(
-            Create(parent_edge)
-        )
         self.add_vertices(
             *subtree.vertices,
             positions=subtree_layout
@@ -340,7 +294,10 @@ class Tree(Graph):
             *subtree.edges
         )
         self.set_colors(subtree.get_colours())
-
+        Forest.remove(subtree)
+        scene.play(
+            Create(parent_edge)
+        )
         scene.remove(parent_edge)
 
         self.add_edges((vertex, subtree.get_root()))
