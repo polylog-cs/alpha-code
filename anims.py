@@ -662,20 +662,39 @@ class Solution(Scene):
         self.play(
             *[
                 Uncreate(c) for c in circles_leaves
-            ],
+            ]
+        )
+        self.wait()
+
+        self.play(
             *[
                 Create(c) for c in circles_nonleaves
             ]
         )
         self.wait()        
+
+        # These blue nodes are not leaves, because they have at least one red child that covers them. This child needs to be a red node. 
+
+        arrows = [
+            Arrow(start = example_tree.vertices[1], end = example_tree.vertices[2], color = RED, buff = 0.1),
+            Arrow(start = example_tree.vertices[1], end = example_tree.vertices[9], color = RED, buff = 0.1),
+            Arrow(start = example_tree.vertices[11], end = example_tree.vertices[12], color = RED, buff = 0.1),
+        ]
+
         self.play(
+            *[Create(ar) for ar in arrows]
+        )
+        self.wait()
+        self.play(
+            *[Flash(example_tree.vertices[v], color = RED) for v in [2, 9, 12]]
+        )
+        self.play(
+            *[Uncreate(ar) for ar in arrows],
             *[
                 Uncreate(c) for c in circles_nonleaves
             ],
         )
         self.wait()
-
-        # These blue nodes are not leaves, because they have at least one red child that covers them. This child needs to be a red node. 
 
         self.wait(10)
 
