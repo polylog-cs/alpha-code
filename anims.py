@@ -14,7 +14,7 @@ def sugar(scene, tree, n1, n2, n_sh):
         scene,
         n1,
         n2,
-        tree.vertices[n2].get_center() + n_sh * sh +  H,
+        tree.vertices[n2].get_center() + n_sh * sh + H,
         2 * DOWN,
         2 * DOWN,
     )
@@ -22,16 +22,16 @@ def sugar(scene, tree, n1, n2, n_sh):
 
 class Intro(Scene):
     def construct(self):
-        
+
         num_img = 26
         img_positions = []
-        
+
         for n, l1, l2 in [
             (10, [-4, -2, 0, 2, 4], [-2, 0, 2]),
             (10, [-6, -4, -2], [-2, 0, 2]),
         ]:
             for _ in range(n):
-                while(True):
+                while (True):
                     new_pos = np.array(random.choice(l1) * RIGHT + random.choice(l2) * UP)
                     i = max(0, len(img_positions) - 6)
                     collision = False
@@ -43,7 +43,7 @@ class Intro(Scene):
                     else:
                         img_positions.append(new_pos)
                         break
-        
+
         dalle_images = []
         for i in range(len(img_positions)):
             dalle_images.append(
@@ -119,11 +119,12 @@ class Polylog(Scene):
         )
         self.wait()
 
+
 class Statement(Scene):
     def construct(self):
         self.next_section(skip_animations=False)
 
-        caption = Tex("The Problem", color = GRAY).scale(3)
+        caption = Tex("The Problem", color=GRAY).scale(3)
         self.play(
             FadeIn(caption)
         )
@@ -145,8 +146,6 @@ class Statement(Scene):
             FadeIn(statement_caption)
         )
         self.wait()
-
-
 
         example_tree = Tree(
             example_vertices,
@@ -463,6 +462,7 @@ class Statement(Scene):
 
         self.wait()
 
+
 class Solution(Scene):
     def construct(self):
         self.next_section(skip_animations=False)
@@ -472,31 +472,32 @@ class Solution(Scene):
         example_tree = Tree(
             example_vertices,
             example_edges,
-            layout=rooted_position(pos_root = 3*UP),
+            layout=rooted_position(pos_root=3 * UP),
             layout_scale=tree_scale,
-            vertex_config={"radius": node_radius, "color": WHITE}, # for debugging
-            labels=True, # for debugging
+            vertex_config={"radius": node_radius, "color": WHITE},  # for debugging
+            labels=True,  # for debugging
             edge_config={"color": text_color},
-            root = 1
+            root=1
         )
+
+        num_leaves_counter.add_updater(lambda x: x.set_value(Forest.get_leaves_cnt()))
 
         self.play(
             FadeIn(example_tree),
             FadeIn(num_leaves),
             FadeIn(num_leaves_counter),
         )
-        self.wait()
+        self.wait(2)
 
         # Then I tried to solve the problem manually for this tree. I noticed that if I take this bud [vrchol 5] and put it for example here, I get rid of one leaf, so that is good. 
         sugar(self, example_tree, 5, 10, -1)
         self.play(
             Flash(
                 example_tree.vertices[10],
-                color = BLUE,
+                color=BLUE,
             )
         )
         self.wait()
-
         # Also, this guy now becomes a bud, so I can again hang it somewhere else and now the number of leaves drops down to 5. This turns out to be the smallest possible number, but at this point this was not clear at all.
         # self.play(
         #     Flash(
@@ -524,13 +525,13 @@ class Solution(Scene):
 
         # TODO circle 5
 
-        rel_pos_5 = 0.5*UP
+        rel_pos_5 = 0.5 * UP
         circle5 = CubicBezier(
             ORIGIN,
-            1.4*(2*LEFT + 2*DOWN),
-            1.4*(2*RIGHT + 2*DOWN),
+            1.4 * (2 * LEFT + 2 * DOWN),
+            1.4 * (2 * RIGHT + 2 * DOWN),
             ORIGIN,
-            color = BLACK
+            color=BLACK
         ).move_to(
             example_tree.vertices[5].get_center()
         ).shift(rel_pos_5)
@@ -558,73 +559,72 @@ class Solution(Scene):
         sugar(self, example_tree, 12, 10, 0)
         sugar(self, example_tree, 5, 2, 1)
         sugar(self, example_tree, 12, 11, 0)
-       
 
+        # And that holds in general. I realized that I can imagine repeatedly cutting the buds from the tree in any order like this.
 
-        # And that holds in general. I realized that I can imagine repeatedly cutting the buds from the tree in any order like this. 
-
-        #TODO more animations
+        # TODO more animations
         self.next_section(skip_animations=False)
-        
+        self.wait(2)
+
         sub5 = example_tree.remove_subtree(self, 5)
         self.play(
-            sub5.animate().shift(2*DOWN)
+            sub5.animate().shift(2 * DOWN)
         )
 
         sub2 = example_tree.remove_subtree(self, 2)
         self.play(
-            sub2.animate().shift(1*DOWN)
+            sub2.animate().shift(1 * DOWN)
         )
 
         sub12 = example_tree.remove_subtree(self, 12)
         self.play(
-            sub12.animate().shift(1*DOWN)
+            sub12.animate().shift(1 * DOWN)
         )
 
         sub9 = example_tree.remove_subtree(self, 9)
         self.play(
-            sub9.animate().shift(1*DOWN)
+            sub9.animate().shift(1 * DOWN)
         )
         self.wait()
 
-        # Now I draw the circle around each bud and put them back. 
-        
+        # Now I draw the circle around each bud and put them back.
+
         self.play(
-            sub9.animate().shift(1*UP)
+            sub9.animate().shift(1 * UP)
         )
         example_tree.add_subtree(self, sub9, 1)
 
         self.play(
-            sub12.animate().shift(-1*DOWN)
+            sub12.animate().shift(-1 * DOWN)
         )
         example_tree.add_subtree(self, sub12, 11)
 
         self.play(
-            sub2.animate().shift(-1*DOWN)
+            sub2.animate().shift(-1 * DOWN)
         )
         example_tree.add_subtree(self, sub2, 1)
 
         self.play(
-            sub5.animate().shift(-2*DOWN)
+            sub5.animate().shift(-2 * DOWN)
         )
         example_tree.add_subtree(self, sub5, 2)
-        # If I now do some random bud-cutting operations, you see that the nodes in the same circle always stay together. 
-        
-        #TODO more animations
+        # If I now do some random bud-cutting operations, you see that the nodes in the same circle always stay together.
+
+        # TODO more animations
 
         # Notice that I also colored all of these nodes with a shade of red, because those are the potential buds. By that I think that whenever you see a bud after doing some rehanging operations, it definitely has to be a red node. On the other hand, not all the red nodes are buds, only those that are currently at the bottom of the tree and have the bright red color. I also colored the rest of the nodes blue, because those are the potential leaves. Again, not all blue nodes are leaves, but whenever you see a leaf, it has to be blue. I again give a bright blue color to the actual leaves and otherwise the node gets an opaque blue color.  
         
         #TODO rethink
         self.play(
             *[
-                Flash(example_tree.vertices[v], color = RED) for v in red_nodes
+                Flash(example_tree.vertices[v], color=RED) for v in red_nodes
             ]
         )
         self.wait()
-        
+
         self.play(
             *[
-                Flash(example_tree.vertices[v], color = BLUE) for v in blue_nodes
+                Flash(example_tree.vertices[v], color=BLUE) for v in blue_nodes
             ]
         )
         self.wait()
@@ -635,23 +635,22 @@ class Solution(Scene):
         blue_leaves = [x for x in blue_nodes if x not in blue_nonleaves]
 
         circles_leaves = [
-            Circle(radius = 0.3, color = BLUE).move_to(example_tree.vertices[v])
+            Circle(radius=0.3, color=BLUE).move_to(example_tree.vertices[v])
             for v in blue_leaves
         ]
         circles_nonleaves = [
-            Circle(radius = 0.3, color = BLUE).move_to(example_tree.vertices[v])
+            Circle(radius=0.3, color=BLUE).move_to(example_tree.vertices[v])
             for v in blue_nonleaves
         ]
 
-        # Well, instead of minimizing the number of leaves we can maximize the number of blue nodes that are not leaves. That means we want as many as possible of these guys. 
+        # Well, instead of minimizing the number of leaves we can maximize the number of blue nodes that are not leaves. That means we want as many as possible of these guys.
         self.play(
             *[
                 Create(c) for c in circles_leaves
             ]
         )
-        self.wait()        
+        self.wait()
 
-        
         self.play(
             *[
                 Uncreate(c) for c in circles_leaves
@@ -664,14 +663,14 @@ class Solution(Scene):
                 Create(c) for c in circles_nonleaves
             ]
         )
-        self.wait()        
+        self.wait()
 
-        # These blue nodes are not leaves, because they have at least one   child that covers them. This child needs to be a red node. 
+        # These blue nodes are not leaves, because they have at least one red child that covers them. This child needs to be a red node.
 
         arrows = [
-            Arrow(start = example_tree.vertices[1], end = example_tree.vertices[2], color = RED, buff = 0.1),
-            Arrow(start = example_tree.vertices[1], end = example_tree.vertices[9], color = RED, buff = 0.1),
-            Arrow(start = example_tree.vertices[11], end = example_tree.vertices[12], color = RED, buff = 0.1),
+            Arrow(start=example_tree.vertices[1], end=example_tree.vertices[2], color=RED, buff=0.1),
+            Arrow(start=example_tree.vertices[1], end=example_tree.vertices[9], color=RED, buff=0.1),
+            Arrow(start=example_tree.vertices[11], end=example_tree.vertices[12], color=RED, buff=0.1),
         ]
 
         self.play(
@@ -679,7 +678,7 @@ class Solution(Scene):
         )
         self.wait()
         self.play(
-            *[Flash(example_tree.vertices[v], color = RED) for v in [2, 9, 12]]
+            *[Flash(example_tree.vertices[v], color=RED) for v in [2, 9, 12]]
         )
         self.play(
             *[Uncreate(ar) for ar in arrows],
@@ -806,15 +805,15 @@ class Solution(Scene):
 
         self.wait(10)
 
+
 class Explore(Scene):
     def construct(self):
-
         curve = CubicBezier(
             ORIGIN,
-            3*(2*LEFT + 2*DOWN),
-            3*(2*RIGHT + 2*DOWN),
+            3 * (2 * LEFT + 2 * DOWN),
+            3 * (2 * RIGHT + 2 * DOWN),
             ORIGIN,
-            color = BLACK
+            color=BLACK
         )
 
 
