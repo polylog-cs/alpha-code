@@ -497,7 +497,6 @@ class Solution(Scene):
             )
         )
         self.wait()
-        return
         # Also, this guy now becomes a bud, so I can again hang it somewhere else and now the number of leaves drops down to 5. This turns out to be the smallest possible number, but at this point this was not clear at all.
         # self.play(
         #     Flash(

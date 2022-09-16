@@ -101,7 +101,6 @@ class Forest():
 
     @staticmethod
     def add(tree):
-        tree.change_layout(rooted_position())
         Forest.trees[tree.get_root()] = tree
 
     @staticmethod
