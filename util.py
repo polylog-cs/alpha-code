@@ -1,3 +1,4 @@
+import copy
 import itertools
 import random
 import math
@@ -137,6 +138,7 @@ class Tree(Graph):
         #     self.parents = self.compute_parents()
 
         super().__init__(*args, **kwargs)
+        self.objects = {}
         self.root = root
         self.parents = {root: None}
         if root != None:
@@ -293,6 +295,9 @@ class Tree(Graph):
         self.add_edges(
             *subtree.edges
         )
+        for k, v in subtree.objects.items():
+            self.add_object_on_scene_to_vertex(k, v)
+
         self.set_colors(subtree.get_colours())
         Forest.remove(subtree)
         scene.play(
@@ -337,6 +342,10 @@ class Tree(Graph):
             root=vertex,
             edge_config={"color": text_color}
         )
+
+        for v in list(set(flatten_vertices) & self.objects.keys()):
+            subtree.add_object_on_scene_to_vertex(v, self.objects[v])
+            self.objects.pop(v)
 
         # nothing should happen on the scene
         self.remove_vertices(*flatten_vertices)
@@ -385,11 +394,23 @@ class Tree(Graph):
         scene.remove(curve)
         scene.wait()
 
-    def add_object_to_vertex(self, vertex: int, scene, object):
-        always(object.next_to, self[vertex], 0)
+    def add_object_to_vertex(self, vertex: int, scene, manim_object):
+        self.objects[vertex] = manim_object
+        always(manim_object.next_to, self[vertex], 0)
         scene.play(
-            Create(object)
+            Create(manim_object)
         )
+        scene.wait(2)
+
+    def add_object_on_scene_to_vertex(self, vertex: int, manim_object):
+        self.objects[vertex] = manim_object
+        always(self.objects[vertex].next_to, self[vertex], 0)
+
+    def remove_object(self, vertex: int, scene):
+        scene.play(
+            Uncreate(self.objects[vertex])
+        )
+        self.objects.pop(vertex)
 
     def get_leaves(self) -> Set[int]:
         res = set()
