@@ -241,9 +241,11 @@ class Statement(Scene):
         self.wait()
 
         # leaves
-        leaves = example_tree.get_leaves()
         self.play(
-            example_tree.animate().pretty_colour()
+            *[
+                example_tree.vertices[v].animate().set_color(BLUE)
+                for v in example_tree.get_leaves()
+            ]
         )
         self.wait()
 
@@ -260,10 +262,20 @@ class Statement(Scene):
         )
         self.wait()
 
+        self.play(
+            *[
+                example_tree.vertices[v].animate().set_color(RED)
+                for v in example_tree.get_buds()
+            ]
+        )
+        self.wait()
+
+
         arrow = Arrow(
-            start=ORIGIN,
-            end=ORIGIN + LEFT / 2,
+            start=ORIGIN+0*RIGHT,
+            end=ORIGIN + LEFT ,
             color=RED,
+            stroke_width=10
         ).scale(3).move_to(3 * LEFT + 0 * DOWN)
 
         self.play(
@@ -361,14 +373,12 @@ class Statement(Scene):
         sugar(self, example_tree, 2, 10, 0)
         sugar(self, example_tree, 5, 1, -2)
         sugar(self, example_tree, 2, 13, 0)
-        sugar(self, example_tree, 5, 10, 0)
-        sugar(self, example_tree, 2, 1, -2)
-        sugar(self, example_tree, 5, 2, 1)
 
         self.wait()
 
         num_leaves = Tex(r"\# leaves: ", color = BLUE).move_to(1*RIGHT + 3*DOWN)
         num_leaves_counter = Integer(7, color = BLUE).next_to(num_leaves, RIGHT)
+        num_leaves_counter.add_updater(lambda x: x.set_value(Forest.get_leaves_cnt()))
 
         self.play(
             FadeIn(num_leaves),
@@ -376,6 +386,9 @@ class Statement(Scene):
         )
         self.wait()
 
+        sugar(self, example_tree, 5, 10, 0)
+        sugar(self, example_tree, 2, 1, -2)
+        sugar(self, example_tree, 5, 2, 1)
         sugar(self, example_tree, 5, 1, -5)
         sugar(self, example_tree, 12, 1, 5)
         sugar(self, example_tree, 12, 10, 0)
@@ -432,7 +445,8 @@ class Statement(Scene):
             layout_scale=tree_scale,
             vertex_config={"radius": node_radius, "color": GRAY},  # for debugging
             labels=False,  # for debugging
-            edge_config={"color": text_color}
+            edge_config={"color": text_color},
+            root = 1
         )  # .move_to(scene_width/4 * RIGHT)
 
         W = 2*sh
@@ -446,12 +460,15 @@ class Statement(Scene):
                 6: 2 * H - W / 2,
                 7: 2 * H + W,
             }
-        ).move_to(scene_width / 4 * RIGHT + 1 * UP)
+        ).move_to(scene_width / 4 * RIGHT + 3 * UP)
 
         self.play(
             Create(sample_tree),
         )
         self.wait()
+
+        sugar(self, sample_tree, 4, 3, 0)
+        sugar(self, sample_tree, 2, 7, 0)
 
         self.play(
             Group(
@@ -515,7 +532,7 @@ class Solution(Scene):
         # )
         # self.wait()
         sugar(self, example_tree, 2, 6, 0)
-        return
+        
         # So I continued playing with the tree and for quite some time I did not have much of an idea about what was happening until I realized the following thing. Let’s look for example at this bud and circle it and its leaves. And then do some random operations. You can see that the bud and its leaves always stay together, they never separate.
         
         sugar(self, example_tree, 2, 1, -2)

@@ -121,7 +121,7 @@ class Forest():
 
 
 class Tree(Graph):
-    def __init__(self, *args, label_class=MathTex, root=None, **kwargs):
+    def __init__(self, *args, label_class=MathTex, root=None, inactive_are_grey = True, **kwargs):
         # Hack to fix "labels=True" when TeX is not available
         # (uses `Text` instead of `MathTex`)
         if kwargs.get("labels"):
@@ -149,6 +149,9 @@ class Tree(Graph):
                         tmp.append(neighbour)
 
         Forest.add(self)
+        self.inactive_are_grey = inactive_are_grey
+
+
 
     def get_root(self) -> int:  # VR probably works now but rather have it as separate parameter
         return self.root
@@ -374,7 +377,7 @@ class Tree(Graph):
             new_pos + dir2,
             new_pos,
         )
-        scene.add(curve)
+        #scene.add(curve)
         curve.shift(subtree.get_center() - root_pos)
 
         scene.play(
@@ -382,7 +385,7 @@ class Tree(Graph):
         )
 
         self.add_subtree(scene, subtree, v_to)
-        scene.remove(curve)
+        #scene.remove(curve)
         scene.wait()
 
     def add_object_to_vertex(self, vertex: int, scene, object):
