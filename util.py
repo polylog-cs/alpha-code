@@ -89,6 +89,48 @@ def rooted_position(pos_root=ORIGIN):
 
     return positions
 
+example_edges_mid = [
+    (1, 2),
+    (2, 3),
+    (2, 4),
+    (1, 5),
+    (5, 6),
+    (5, 7),
+    (5, 8),
+    (1, 9),
+    (9, 10),
+    (9, 11),
+    (1, 12),
+    (12, 13),
+]
+def rooted_position_mid(pos_root=ORIGIN):
+    SH = 2*sh
+    positions = {}
+
+
+    positions[1] = pos_root
+
+    positions[2] = positions[1] - SH + H
+    positions[9] = positions[1] + SH + H
+
+    positions[3] = positions[2] - sh + H
+    positions[4] = positions[2] + H
+
+    positions[5] = positions[2] - 3*sh
+    positions[10] = positions[9] - sh + H
+
+    positions[11] = positions[9] + sh + H
+
+    positions[6] = positions[5] - sh + H
+    positions[7] = positions[5] + H
+    positions[8] = positions[5] + sh + H
+
+    positions[12] = positions[9] + 3*sh
+    positions[13] = positions[12] + H
+    positions[14] = positions[13] + H
+
+    return positions
+
 
 ###############
 
@@ -295,7 +337,8 @@ class Tree(Graph):
             start=subtree.vertices[subtree.get_root()].get_center(),
             end=self.vertices[vertex].get_center(),
             color=GRAY,
-        )
+        ).set_z_index(-100)
+        
         self.add_vertices(
             *subtree.vertices,
             positions=subtree_layout
@@ -334,7 +377,7 @@ class Tree(Graph):
             start=self.vertices[vertex].get_center(),
             end=self.vertices[self.parent(vertex)].get_center(),
             color=GRAY,
-        )
+        ).set_z_index(-100)
 
         subtree_layout = {}
         for v in flatten_vertices:
@@ -403,17 +446,17 @@ class Tree(Graph):
         #scene.remove(curve)
         scene.wait()
 
-    def add_object_to_vertex(self, vertex: int, scene, manim_object):
+    def add_object_to_vertex(self, vertex: int, scene, manim_object, buffer = 0):
         self.objects[vertex] = manim_object
-        always(manim_object.next_to, self[vertex], 0)
+        always(manim_object.next_to, self[vertex], UP, buff=buffer)
         scene.play(
             Create(manim_object)
         )
         scene.wait(2)
 
-    def add_object_on_scene_to_vertex(self, vertex: int, manim_object):
+    def add_object_on_scene_to_vertex(self, vertex: int, manim_object, buffer = 0):
         self.objects[vertex] = manim_object
-        always(self.objects[vertex].next_to, self[vertex], 0)
+        always(self.objects[vertex].next_to, self[vertex], UP, buff=buffer)
 
     def remove_object(self, vertex: int, scene):
         scene.play(

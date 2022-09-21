@@ -31,9 +31,6 @@ void solve(){
         if(is_blue[u]) ans++;
         else ans--;
     }
-    if(is_blue[0] == 0){
-        ans += 1;
-    }
     cout << ans << endl;
 }
 
