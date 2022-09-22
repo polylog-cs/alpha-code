@@ -57,7 +57,12 @@ class Rubik(RubikScene):
                 color = RED
             )
             self.play(
-                CubeMove(new_cube, scramble1[i], cube_mid.get_center()*i/(len(scramble1)) + cube_from.get_center()*(len(scramble1) - 1.0 - i)/(len(scramble1))),
+                CubeMove(new_cube, scramble1[i], 
+                    (
+                        cube_mid.get_center() * i * 1.0 /len(scramble1) 
+                    + cube_from.get_center() * (len(scramble1) - 1.0 - i)/len(scramble1)
+                    )[0]*RIGHT + cube_mid.get_center()[1]*UP
+                ),
                 Create(a),
                 run_time=1 / 3,
             )
@@ -78,7 +83,8 @@ class Rubik(RubikScene):
                 color = BLUE
             )            
             self.play(
-                CubeMove(new_cube, scramble2[i], cube_mid.get_center()*i/(len(scramble2)) + cube_to.get_center()*(len(scramble2) - 1.0 - i)/(len(scramble2))),
+                CubeMove(new_cube, scramble2[i], 
+                (cube_mid.get_center()*i/(len(scramble2)) + cube_to.get_center()*(len(scramble2) - 1.0 - i)/(len(scramble2)))[0]*RIGHT + cube_mid.get_center()[1]*UP),
                 Create(a),
                 run_time=1 / 3,
             )

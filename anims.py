@@ -868,7 +868,8 @@ class Solution(Scene):
             Transform(a5, Arrow(a5.get_left(), a5.get_right(), buff = 0, color = BLUE)),
         )
         self.wait()
-        
+        self.remove(middle_tree)
+
         self.play(
             Circumscribe(starting_tree, color = RED)
         )
@@ -878,6 +879,142 @@ class Solution(Scene):
             Circumscribe(example_tree, color = RED)
         )
         self.wait()
+
+
+        # rubik part
+        self.play(
+            *[o.animate().shift(1.5 * UP) for o in [a1, a2, a3, a4, a5] + [t1, t2, t3, t4, t5] + [starting_tree, example_tree]]
+        )
+
+        self.wait()
+
+        self.play(
+            Circumscribe(middle_tree, color = RED)
+        )
+        self.wait()
+        self.play(
+            Circumscribe(starting_tree, color = RED)
+        )
+        self.wait()
+
+        self.play(
+            Circumscribe(example_tree, color = RED)
+        )
+        self.wait()
+
+
+        # just the main tree again
+        self.play(
+            *[FadeOut(a) for a in [a1, a2, a3, a4, a5]],
+            *[FadeOut(t) for t in [t1, t2, t3, t4, t5, example_tree]]
+        )
+        self.play(
+            starting_tree.animate().scale(1.0/small_tree_scale).move_to(ORIGIN)
+        )
+        self.wait()
+
+
+
+        # But that was a digression, let’s go back to our problem. By now, we actually understand perfectly what’s the deal with the rehanging operations. In fact, this whole rehanging business was just a cruel trick that the problem setter played on us. 
+
+        sugar(self, starting_tree, 5, 1, -5)
+        sugar(self, starting_tree, 12, 1, 5)
+        sugar(self, starting_tree, 5, 10, -1)
+        sugar(self, starting_tree, 2, 6, 0)
+        sugar(self, starting_tree, 2, 1, -2)
+        sugar(self, starting_tree, 5, 1, -5)
+        sugar(self, starting_tree, 12, 1, 5)
+        sugar(self, starting_tree, 12, 10, 0)
+
+      
+        # When we get the input tree, we can forget all those rehangings and just split the tree into the buds. 
+        
+        h = H/2
+
+        sub5 = starting_tree.remove_subtree(self, 5)
+        sub2 = starting_tree.remove_subtree(self, 2)
+        sub12 = starting_tree.remove_subtree(self, 12)
+        sub9 = starting_tree.remove_subtree(self, 9)
+
+        self.play(
+            sub5.animate().shift(2*H + h),sub9.animate().shift(2*H + 3*sh + h),
+            sub2.animate().shift(2*H + sh + h),
+            sub12.animate().shift(h)
+        )
+        self.wait()
+        
+
+        pos2 = sub2.get_center()
+        pos5 = sub5.get_center()
+        pos9 = sub9.get_center()
+        pos12 = sub12.get_center()
+        
+        # That’s because all the trees we can construct using rehangings are exactly the trees we can construct by stacking the buds below the root in any order. 
+
+        for i in range(3):
+            if i == 0:
+                self.play(
+                    sub2.animate().shift(3*sh-h),
+                    sub5.animate().shift(2*sh-h),
+                    sub9.animate().shift(-2*H-7*sh-h),
+                    sub12.animate().shift(-2*H+sh-h),
+                )
+                starting_tree.add_subtree(self, sub9, 1)
+                starting_tree.add_subtree(self, sub12, 1)
+                starting_tree.add_subtree(self, sub5, 10)
+                starting_tree.add_subtree(self, sub2, 13)
+
+                sub5 = starting_tree.remove_subtree(self, 5)
+                sub2 = starting_tree.remove_subtree(self, 2)
+                sub12 = starting_tree.remove_subtree(self, 12)
+                sub9 = starting_tree.remove_subtree(self, 9)
+
+            if i == 1:
+                self.play(
+                    sub2.animate().shift(-2*H-2*sh-h),
+                    sub5.animate().shift(-2*H+5*sh-h),
+                    sub9.animate().shift(-2*sh-h),
+                    sub12.animate().shift(-2*H+2*sh-h),
+                )
+                starting_tree.add_subtree(self, sub2, 1)
+                starting_tree.add_subtree(self, sub5, 1)
+                starting_tree.add_subtree(self, sub12, 1)
+                starting_tree.add_subtree(self, sub9, 13)
+
+                sub9 = starting_tree.remove_subtree(self, 9)
+                sub2 = starting_tree.remove_subtree(self, 2)
+                sub5 = starting_tree.remove_subtree(self, 5)
+                sub12 = starting_tree.remove_subtree(self, 12)
+                
+            if i == 2:
+                self.play(
+                    sub2.animate().shift(-0*H-1*sh-h),
+                    sub5.animate().shift(-2*H+5*sh-h),
+                    sub9.animate().shift(-2*sh-h),
+                    sub12.animate().shift(-0*H-1*sh-h),
+                )
+
+                starting_tree.add_subtree(self, sub5, 1)
+                starting_tree.add_subtree(self, sub2, 6)
+                starting_tree.add_subtree(self, sub12, 7)
+                starting_tree.add_subtree(self, sub9, 8)
+
+                sub2 = starting_tree.remove_subtree(self, 2)
+                sub12 = starting_tree.remove_subtree(self, 12)
+                sub9 = starting_tree.remove_subtree(self, 9)
+                sub5 = starting_tree.remove_subtree(self, 5)
+                
+            self.play(
+                sub2.animate().move_to(pos2),
+                sub5.animate().move_to(pos5),
+                sub9.animate().move_to(pos9),
+                sub12.animate().move_to(pos12),
+            )
+            self.wait()
+
+
+
+        self.wait(10)
 
         return
  
