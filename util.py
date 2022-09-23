@@ -49,7 +49,6 @@ example_edges = [
 red_nodes = [2, 5, 9, 12]
 blue_nodes = [x for x in range(1, 14) if x not in red_nodes]
 
-
 sample_vertices = list(range(1, 8))
 sample_edges = [
     (1, 2),
@@ -60,13 +59,13 @@ sample_edges = [
     (4, 7),
 ]
 
-H = 1*DOWN
+H = 1 * DOWN
 sh = 0.5 * RIGHT
 
-def rooted_position(pos_root=ORIGIN):
-    SH = 2*sh
-    positions = {}
 
+def rooted_position(pos_root=ORIGIN):
+    SH = 2 * sh
+    positions = {}
 
     positions[1] = pos_root
 
@@ -89,6 +88,7 @@ def rooted_position(pos_root=ORIGIN):
 
     return positions
 
+
 example_edges_mid = [
     (1, 2),
     (2, 3),
@@ -103,10 +103,11 @@ example_edges_mid = [
     (1, 12),
     (12, 13),
 ]
-def rooted_position_mid(pos_root=ORIGIN):
-    SH = 2*sh
-    positions = {}
 
+
+def rooted_position_mid(pos_root=ORIGIN):
+    SH = 2 * sh
+    positions = {}
 
     positions[1] = pos_root
 
@@ -116,7 +117,7 @@ def rooted_position_mid(pos_root=ORIGIN):
     positions[3] = positions[2] - sh + H
     positions[4] = positions[2] + H
 
-    positions[5] = positions[2] - 3*sh
+    positions[5] = positions[2] - 3 * sh
     positions[10] = positions[9] - sh + H
 
     positions[11] = positions[9] + sh + H
@@ -125,7 +126,7 @@ def rooted_position_mid(pos_root=ORIGIN):
     positions[7] = positions[5] + H
     positions[8] = positions[5] + sh + H
 
-    positions[12] = positions[9] + 3*sh
+    positions[12] = positions[9] + 3 * sh
     positions[13] = positions[12] + H
     positions[14] = positions[13] + H
 
@@ -169,7 +170,7 @@ class Forest():
 
 
 class Tree(Graph):
-    def __init__(self, *args, label_class=MathTex, root=None, inactive_are_grey = True, **kwargs):
+    def __init__(self, *args, label_class=MathTex, root=None, scale=1, inactive_are_grey=True, **kwargs):
         # Hack to fix "labels=True" when TeX is not available
         # (uses `Text` instead of `MathTex`)
         if kwargs.get("labels"):
@@ -186,7 +187,9 @@ class Tree(Graph):
 
         super().__init__(*args, **kwargs)
         self.objects = {}
+        self.object_buffers = {}
         self.root = root
+        self.scale_factor = scale
         self.parents = {root: None}
         if root != None:
             tmp = [root]
@@ -200,7 +203,9 @@ class Tree(Graph):
         Forest.add(self)
         self.inactive_are_grey = inactive_are_grey
 
-
+    def scale(self, scale_factor, **kwargs):
+        self.scale_factor = scale_factor
+        return super().scale(scale_factor)
 
     def get_root(self) -> int:  # VR probably works now but rather have it as separate parameter
         return self.root
@@ -338,16 +343,18 @@ class Tree(Graph):
             end=self.vertices[vertex].get_center(),
             color=GRAY,
         ).set_z_index(-100)
-        
+
         self.add_vertices(
             *subtree.vertices,
-            positions=subtree_layout
+            positions=subtree_layout,
         )
+        for v in subtree.vertices:
+            self[v].scale(self.scale_factor)
         self.add_edges(
             *subtree.edges
         )
         for k, v in subtree.objects.items():
-            self.add_object_on_scene_to_vertex(k, v)
+            self.add_object_on_scene_to_vertex(k, v, buffer=subtree.object_buffers[k])
 
         self.set_colors(subtree.get_colours())
         Forest.remove(subtree)
@@ -358,6 +365,8 @@ class Tree(Graph):
 
         self.add_edges((vertex, subtree.get_root()))
         self.parents[subtree.get_root()] = vertex
+        for k, v in subtree.parents.items():
+            self.parents[k] = v
         animations = [self[k].animate().set_fill(v) for k, v in self.get_colours().items()]
         scene.play(
             *animations
@@ -383,23 +392,26 @@ class Tree(Graph):
         for v in flatten_vertices:
             subtree_layout[v] = self.vertices[v].get_center()
 
+        self.remove_vertices(*flatten_vertices)
+
         subtree = Tree(
             flatten_vertices,
             flatten_edges,
             layout=subtree_layout,
             layout_scale=3,  # !
-            vertex_config={"radius": 0.2, "color": text_color},
+            vertex_config={"radius": 0.2*self.scale_factor, "color": text_color},
             labels=True,
             root=vertex,
+            scale=self.scale_factor,
             edge_config={"color": text_color}
         )
 
         for v in list(set(flatten_vertices) & self.objects.keys()):
-            subtree.add_object_on_scene_to_vertex(v, self.objects[v])
+            subtree.add_object_on_scene_to_vertex(v, self.objects[v], buffer=self.object_buffers[v])
             self.objects.pop(v)
+            self.object_buffers.pop(v)
 
         # nothing should happen on the scene
-        self.remove_vertices(*flatten_vertices)
         scene.remove(self)
         scene.add(self, subtree, parent_edge)
         subtree.pretty_colour()
@@ -419,7 +431,7 @@ class Tree(Graph):
         scene.wait()
         return subtree
 
-    def rehang_subtree(self, scene, v_from, v_to, new_pos, dir1, dir2):
+    def rehang_subtree(self, scene, v_from, v_to, new_pos, dir1, dir2, shift_horizontal=0):
         Forest.isUpdating = True
         root_pos = self.vertices[v_from].get_center()
 
@@ -433,29 +445,32 @@ class Tree(Graph):
             root_pos,
             root_pos + dir1,
             new_pos + dir2,
-            new_pos,
+            new_pos + shift_horizontal,
         )
-        #scene.add(curve)
+        # scene.add(curve)
         curve.shift(subtree.get_center() - root_pos)
 
         scene.play(
-            MoveAlongPath(subtree, curve)
+            MoveAlongPath(subtree, curve),
+            self.animate().shift(shift_horizontal)
         )
         Forest.isUpdating = False
         self.add_subtree(scene, subtree, v_to)
-        #scene.remove(curve)
+        # scene.remove(curve)
         scene.wait()
 
-    def add_object_to_vertex(self, vertex: int, scene, manim_object, buffer = 0):
+    def add_object_to_vertex(self, vertex: int, scene, manim_object, buffer=0):
         self.objects[vertex] = manim_object
+        self.object_buffers[vertex] = buffer
         always(manim_object.next_to, self[vertex], UP, buff=buffer)
         scene.play(
             Create(manim_object)
         )
         scene.wait(2)
 
-    def add_object_on_scene_to_vertex(self, vertex: int, manim_object, buffer = 0):
+    def add_object_on_scene_to_vertex(self, vertex: int, manim_object, buffer=0):
         self.objects[vertex] = manim_object
+        self.object_buffers[vertex] = buffer
         always(self.objects[vertex].next_to, self[vertex], UP, buff=buffer)
 
     def remove_object(self, vertex: int, scene):
@@ -463,6 +478,7 @@ class Tree(Graph):
             Uncreate(self.objects[vertex])
         )
         self.objects.pop(vertex)
+        self.object_buffers.pop(vertex)
 
     def get_leaves(self) -> Set[int]:
         res = set()
@@ -505,7 +521,8 @@ class Tree(Graph):
         leaves = self.get_leaves()
         buds = self.get_buds()
         for vertex in self.vertices:
-            if self[vertex].get_color().__str__() != solarized.GRAY.__str__() and vertex not in buds and vertex not in leaves:
+            if self[
+                vertex].get_color().__str__() != solarized.GRAY.__str__() and vertex not in buds and vertex not in leaves:
                 colours[vertex] = solarized.GRAY
         for vertex in leaves:
             if self[vertex].get_color().__str__() != leaf_colour.__str__():
