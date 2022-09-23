@@ -364,9 +364,9 @@ class Tree(Graph):
         scene.remove(parent_edge)
 
         self.add_edges((vertex, subtree.get_root()))
-        self.parents[subtree.get_root()] = vertex
         for k, v in subtree.parents.items():
             self.parents[k] = v
+        self.parents[subtree.get_root()] = vertex
         animations = [self[k].animate().set_fill(v) for k, v in self.get_colours().items()]
         scene.play(
             *animations
@@ -400,7 +400,7 @@ class Tree(Graph):
             layout=subtree_layout,
             layout_scale=3,  # !
             vertex_config={"radius": 0.2*self.scale_factor, "color": text_color},
-            labels=True,
+            labels=False,
             root=vertex,
             scale=self.scale_factor,
             edge_config={"color": text_color}
