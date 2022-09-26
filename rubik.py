@@ -5,9 +5,10 @@ from manim import *
 from cube import *
 
 # This also replaces the default colors
-from solarized import *
+import solarized
 
 from util_cube import *
+from util import *
 import itertools
 
 class Rubik(RubikScene):
@@ -56,6 +57,7 @@ class Rubik(RubikScene):
                 buff = 0.2,
                 color = RED
             )
+            self.add_sound(random_rubik_file(), time_offset = 0.0)
             self.play(
                 CubeMove(new_cube, scramble1[i], 
                     (
@@ -82,12 +84,14 @@ class Rubik(RubikScene):
                 buff = 0.2,                
                 color = BLUE
             )            
+            self.add_sound(random_rubik_file(), time_offset = 0.0)
             self.play(
                 CubeMove(new_cube, scramble2[i], 
                 (cube_mid.get_center()*i/(len(scramble2)) + cube_to.get_center()*(len(scramble2) - 1.0 - i)/(len(scramble2)))[0]*RIGHT + cube_mid.get_center()[1]*UP),
                 Create(a),
                 run_time=1 / 3,
             )
+
             cubes.append(new_cube)
             arrows.append(a)            
             cur_cube = new_cube      

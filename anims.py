@@ -1,3 +1,4 @@
+#from os import startfile
 from random import randrange
 from re import I
 from unittest import skip
@@ -175,8 +176,8 @@ class Statement(Scene):
         # The problem I’ll be solving is called Buds Re-hanging. In this problem, we are given a tree, so a bunch of nodes connected by edges such that no edges form a cycle. 
 
         statement = ImageMobject(
-            "img/statement.png",
-        ).scale_to_fit_width(scene_width / 2.0).shift(scene_width / 4 * LEFT + 8 * DOWN)
+            "img/cf-statement.png",
+        ).scale_to_fit_width(scene_width / 2.0).shift(scene_width / 4 * LEFT + 5.8 * DOWN)
         statement_caption = Tex("Buds Re-hanging (Codeforces 1566E)", color=GRAY).scale(0.8).move_to(
             statement.get_center()).next_to(statement, UP)
 
@@ -208,10 +209,10 @@ class Statement(Scene):
         # This tree is also rooted, so each node except the root has one parent node and possibly some children. The nodes that have no children are called leaves – let’s highlight them in green.
 
         highlight_box = Rectangle(
-            width=scene_width / 2 - 0.5,
+            width=scene_width / 2 - 0.0,
             height=0.8,
             color=RED,
-        ).next_to(statement_caption, DOWN).shift(1.3 * DOWN).set_z_index(100)
+        ).next_to(statement_caption, DOWN).shift(1.7 * DOWN).set_z_index(100)
 
         self.play(
             FadeIn(highlight_box),
@@ -222,7 +223,6 @@ class Statement(Scene):
             run_time=1
         )
         self.wait()
-
         # example_vertex = example_tree.vertices[2]
         # self.play(
         #     example_vertex.animate().set_color(RED)
@@ -294,9 +294,9 @@ class Statement(Scene):
         highlight_box.generate_target()
         highlight_box.target = Rectangle(
             width=highlight_box.get_width(),
-            height=1.4,
+            height=1.5,
             color=RED,
-        ).next_to(highlight_box, DOWN, buff=DEFAULT_MOBJECT_TO_MOBJECT_BUFFER / 2.0)
+        ).next_to(highlight_box, DOWN, buff=DEFAULT_MOBJECT_TO_MOBJECT_BUFFER / 2.0).shift(0.1*UP)
         self.play(
             MoveToTarget(highlight_box),
         )
@@ -307,13 +307,13 @@ class Statement(Scene):
             end=ORIGIN + LEFT,
             color=RED,
             stroke_width=10
-        ).scale(3).move_to(3 * LEFT + 0 * DOWN)
+        ).scale(3).move_to(3 * LEFT + 0.33  * DOWN)
 
         self.play(
             Create(arrow)
         )
         self.wait()
-        line_height = 0.2
+        line_height = 0.25
         for _ in range(2):
             self.play(
                 arrow.animate().shift(line_height * DOWN)
@@ -337,15 +337,16 @@ class Statement(Scene):
         )
         self.wait()
 
+
         # Now, we’re allowed to manipulate our tree it in the following way: we can take a bud and re-hang it and its children to another node of the tree. 
         self.next_section(skip_animations=False)
 
         highlight_box.generate_target()
         highlight_box.target = Rectangle(
             width=highlight_box.get_width(),
-            height=1.2,
+            height=1.3,
             color=RED,
-        ).next_to(highlight_box, DOWN, buff=DEFAULT_MOBJECT_TO_MOBJECT_BUFFER / 2.0)
+        ).next_to(highlight_box, DOWN, buff=DEFAULT_MOBJECT_TO_MOBJECT_BUFFER / 2.0).shift(0.05*UP)
         self.play(
             MoveToTarget(highlight_box),
         )
@@ -354,7 +355,7 @@ class Statement(Scene):
         H = 1 * DOWN
 
         sugar(self, example_tree, 5, 13, 0)
-        sugar(self, example_tree, 5, 2, 0)
+        sugar(self, example_tree, 5, 2, 1)
 
 
         self.wait()
@@ -363,8 +364,6 @@ class Statement(Scene):
 
         # Notice that in this case, after we cut  this bud off the tree, this guy becomes a new bud, and after we put the bud back here, this guy stops being a leaf and also this is not a bud anymore.
 
-        anims = []
-
         ar = Arrow(
             start=ORIGIN,
             end=(1 * RIGHT + 1 * DOWN) / 1.0,
@@ -372,42 +371,44 @@ class Statement(Scene):
         ).move_to(
             example_tree.vertices[2].get_center() + (1 * LEFT + 1 * UP) / 2.0
         )
-
-        anims.append(
-            Succession(
-                # TODO
-            )
-        )
-        self.play(
-            # Flash(example_tree.vertices[2], color = RED),
-            FadeIn(ar),
-        )
-        self.wait()
-
-        ar_new = Arrow(
+        ar2 = Arrow(
             start=ORIGIN,
             end=(1 * LEFT + 1 * DOWN) / 1.0,
             color=RED,
         ).move_to(example_tree.vertices[12].get_center() + (1 * RIGHT + 1 * UP) / 2.0)
+        ar3 = ar2.copy().shift(H)
 
+        anims = [
+            Succession(
+                AnimationGroup(
+                    FadeIn(ar),
+                    run_time = 0.2
+                ),
+                Wait(0.5),
+                AnimationGroup(
+                    FadeIn(ar2),
+                    FadeIn(ar3),
+                    run_time = 0.2
+                )
+            )
+        ]
+
+        example_tree.rehang_subtree(
+            self,
+            5,
+            13,
+            example_tree.vertices[13].get_center() + 0 * sh + H,
+            2 * DOWN,
+            2 * DOWN,
+            additional_anims = anims
+        )
         self.play(
-            Transform(ar, ar_new)
+            FadeOut(ar),
+            FadeOut(ar2),
+            FadeOut(ar3),
         )
         self.wait()
-
-        self.play(
-            # Flash(example_tree.vertices[13], color = RED),
-            ar.animate().shift(H),
-        )
-        self.wait()
-
-        sugar(self, example_tree, 5, 13, 0)
-
-        self.play(
-            FadeOut(ar)
-        )
-        self.wait()
-
+        
         # And now the question is: You’re allowed to do these operations any number of times with any buds you choose. If you do the operations as cleverly as possible, what’s the lowest number of leaves the tree can have? For example, the number of leaves at the beginning is 7. You can see how it changes when we do the operations and the lowest we can get seems to be 5.
 
         self.next_section(skip_animations=False)
@@ -415,15 +416,15 @@ class Statement(Scene):
         highlight_box.generate_target()
         highlight_box.target = Rectangle(
             width=highlight_box.get_width(),
-            height=0.4,
+            height=0.55,
             color=RED,
-        ).next_to(highlight_box, DOWN, buff=DEFAULT_MOBJECT_TO_MOBJECT_BUFFER / 2.0)
+        ).next_to(highlight_box, DOWN, buff=DEFAULT_MOBJECT_TO_MOBJECT_BUFFER / 2.0).shift(0.07*UP)
         self.play(
             MoveToTarget(highlight_box),
         )
         self.wait()
 
-        num_leaves = Tex(r"\# leaves: ", color=BLUE).move_to(1 * RIGHT + 3 * DOWN)
+        num_leaves = Tex(r"\# leaves: ", color=BLUE).move_to(1.5 * RIGHT + 3 * DOWN)
         num_leaves_counter = Integer(7, color=BLUE).next_to(num_leaves, RIGHT)
         num_leaves_counter.add_updater(lambda x: x.set_value(Forest.get_leaves_cnt()))
 
@@ -443,7 +444,6 @@ class Statement(Scene):
         sugar(self, example_tree, 12, 1, 5)
         sugar(self, example_tree, 12, 10, 0)
         sugar(self, example_tree, 5, 3, 0)
-        sugar(self, example_tree, 5, 4, 0)
         sugar(self, example_tree, 5, 13, 0)
         sugar(self, example_tree, 2, 11, 0)
         sugar(self, example_tree, 5, 3, 0)
@@ -462,9 +462,9 @@ class Statement(Scene):
         highlight_box.generate_target()
         highlight_box.target = Rectangle(
             width=highlight_box.get_width(),
-            height=1.4,
+            height=0.6,
             color=RED,
-        ).next_to(highlight_box, DOWN, buff=DEFAULT_MOBJECT_TO_MOBJECT_BUFFER / 2.0).shift(0.3 * DOWN)
+        ).next_to(highlight_box, DOWN, buff=DEFAULT_MOBJECT_TO_MOBJECT_BUFFER / 2.0).shift(0.85 * DOWN)
         self.play(
             MoveToTarget(highlight_box),
         )
@@ -475,14 +475,13 @@ class Statement(Scene):
         highlight_box.generate_target()
         highlight_box.target = Rectangle(
             width=highlight_box.get_width(),
-            height=1.7,
+            height=1.32,
             color=RED,
-        ).next_to(highlight_box, DOWN, buff=DEFAULT_MOBJECT_TO_MOBJECT_BUFFER / 2.0).shift(2.5 * DOWN)
+        ).next_to(highlight_box, DOWN, buff=DEFAULT_MOBJECT_TO_MOBJECT_BUFFER / 2.0).shift(3.2 * DOWN)
         self.play(
             MoveToTarget(highlight_box),
         )
         self.wait()
-
         self.play(
             Uncreate(example_tree),
         )
@@ -525,13 +524,13 @@ class Statement(Scene):
                 statement,
                 statement_caption,
                 highlight_box,
-            ).animate().shift(4 * UP)
+            ).animate().shift(5 * UP)
         )
         highlight_box2 = Rectangle(
             width=highlight_box.get_width(),
-            height=0.3,
+            height=0.22,
             color=RED,
-        ).move_to(highlight_box.get_center()).shift(5.5 * DOWN)
+        ).move_to(highlight_box.get_center()).shift(5.18 * DOWN)
         self.play(
             Create(highlight_box2),
         )
@@ -588,14 +587,13 @@ class Solution(Scene):
         sugar(self, example_tree, 12, 1, 5)
         sugar(self, example_tree, 12, 10, 0)
         sugar(self, example_tree, 5, 3, 0)
-        sugar(self, example_tree, 5, 4, 0)
         sugar(self, example_tree, 5, 13, 0)
         sugar(self, example_tree, 2, 11, 0)
         sugar(self, example_tree, 5, 1, -2)
 
         # And after some time I realized the following thing. Let’s look for example at this bud and enclose it and its leaves in this pointy circle. And then do some random operations. You can see that the bud and its leaves always stay together, they never separate.
 
-        rel_pos_5 = 1
+        rel_pos_5 = 0.2
         circle5 = CubicBezier(
             ORIGIN,
             1.4 * (2 * LEFT + 2 * DOWN),
@@ -669,15 +667,22 @@ class Solution(Scene):
 
         sugar(self, example_tree, 5, 10, -1)
         sugar(self, example_tree, 2, 6, 0)
+        sugar(self, example_tree, 12, 11, 0)
+        sugar(self, example_tree, 2, 13, 0)
+        sugar(self, example_tree, 5, 1, -5)        
         sugar(self, example_tree, 2, 1, -2)
-        sugar(self, example_tree, 5, 1, -5)
+        sugar(self, example_tree, 12, 3, 0)
         sugar(self, example_tree, 12, 1, 5)
-        sugar(self, example_tree, 12, 10, 0)
-        sugar(self, example_tree, 5, 3, 0)
-        sugar(self, example_tree, 5, 4, 0)
-        sugar(self, example_tree, 5, 13, 0)
-        sugar(self, example_tree, 5, 1, -5)
-        sugar(self, example_tree, 12, 1, 5)
+
+        # sugar(self, example_tree, 5, 3, 0)
+        # sugar(self, example_tree, 5, 4, 0)
+        # sugar(self, example_tree, 5, 13, 0)
+        # sugar(self, example_tree, 5, 1, -5)
+
+        example_tree.remove_object(2, self)
+        example_tree.remove_object(5, self)
+        example_tree.remove_object(9, self)
+        example_tree.remove_object(12, self)
 
         # Ok, so all the rehangings that we do are just shuffling the four buds in some ways and the buds cannot be split. But actually, on the other hand, 
         self.next_section(skip_animations=False)
@@ -705,10 +710,6 @@ class Solution(Scene):
 
         # I claim that I can convert the starting tree into this tree using the rehanging operations. 
 
-        example_tree.remove_object(2, self)
-        example_tree.remove_object(5, self)
-        example_tree.remove_object(9, self)
-        example_tree.remove_object(12, self)
 
         small_tree_scale = 0.3
         self.play(
@@ -729,6 +730,15 @@ class Solution(Scene):
 
         self.play(DrawBorderThenFill(starting_tree))
         starting_tree.pretty_colour()  # TODO together
+        self.wait()
+
+        self.play(
+            Circumscribe(starting_tree, color = RED)
+        )
+        self.wait()
+        self.play(
+            Circumscribe(example_tree, color = RED)
+        )
         self.wait()
 
         middle_tree = Tree(
@@ -768,7 +778,7 @@ class Solution(Scene):
         a1 = Arrow(
             starting_tree.vertices[1].get_center() + arrow_shift,
             starting_tree.vertices[1].get_center() + shft_tree1 + arrow_shift,
-            color=BLUE,
+            color=RED,
             buff=ar_buffer
         )
         t1.rehang_subtree(self, 5, 1, t1.vertices[1].get_center() + (-5 * sh + H) * small_tree_scale,
@@ -784,7 +794,7 @@ class Solution(Scene):
         a2 = Arrow(
             t1.vertices[1].get_center() + arrow_shift,
             t1.vertices[1].get_center() + shft_tree1 + arrow_shift,
-            color=BLUE,
+            color=RED,
             buff=ar_buffer
         )
         t2.rehang_subtree(self, 12, 1, t2.vertices[1].get_center() + (+5 * sh + H) * small_tree_scale,
@@ -805,7 +815,7 @@ class Solution(Scene):
         a3 = Arrow(
             example_tree.vertices[1].get_center() + arrow_shift,
             example_tree.vertices[1].get_center() + shft_tree2 + arrow_shift,
-            color=RED,
+            color=BLUE,
             buff=ar_buffer
         )
         t3.rehang_subtree(self, 5, 1, t3.vertices[1].get_center() + (-5 * sh + H) * small_tree_scale,
@@ -823,7 +833,7 @@ class Solution(Scene):
         a4 = Arrow(
             t3.vertices[1].get_center() + arrow_shift,
             t3.vertices[1].get_center() + shft_tree2 + arrow_shift,
-            color=RED,
+            color=BLUE,
             buff=ar_buffer
         )
         t4.rehang_subtree(self, 12, 1, t4.vertices[1].get_center() + (+5 * sh + H) * small_tree_scale,
@@ -840,7 +850,7 @@ class Solution(Scene):
         a5 = Arrow(
             t4.vertices[1].get_center() + arrow_shift,
             t4.vertices[1].get_center() + shft_tree2 + arrow_shift,
-            color=RED,
+            color=BLUE,
             buff=ar_buffer
         )
         t5.rehang_subtree(self, 9, 1, t5.vertices[1].get_center() + (+2 * sh + H) * small_tree_scale,
@@ -878,7 +888,7 @@ class Solution(Scene):
         self.wait()
 
         self.play(
-            Circumscribe(middle_tree, color=RED)
+            Circumscribe(t5, color=RED)
         )
         self.wait()
         self.play(
@@ -906,14 +916,14 @@ class Solution(Scene):
         # But that was a digression, let’s go back to our problem. By now, we actually understand perfectly what’s the deal with the rehanging operations. In fact, this whole rehanging business was just a cruel trick that the problem setter played on us. 
         self.next_section(skip_animations=False)
 
-        sugar(self, starting_tree, 5, 1, -5)
-        sugar(self, starting_tree, 12, 1, 5)
-        sugar(self, starting_tree, 5, 10, -1)
-        sugar(self, starting_tree, 2, 6, 0)
-        sugar(self, starting_tree, 2, 1, -2)
-        sugar(self, starting_tree, 5, 1, -5)
-        sugar(self, starting_tree, 12, 1, 5)
-        sugar(self, starting_tree, 12, 10, 0)
+        # sugar(self, starting_tree, 5, 1, -5)
+        # sugar(self, starting_tree, 12, 1, 5)
+        # sugar(self, starting_tree, 5, 10, -1)
+        # sugar(self, starting_tree, 2, 6, 0)
+        # sugar(self, starting_tree, 2, 1, -2)
+        # sugar(self, starting_tree, 5, 1, -5)
+        # sugar(self, starting_tree, 12, 1, 5)
+        # sugar(self, starting_tree, 12, 10, 0)
 
         # When we get the input tree, we can forget all those rehangings and just split the tree into the buds.
 
@@ -925,9 +935,10 @@ class Solution(Scene):
         sub9 = starting_tree.remove_subtree(self, 9)
 
         self.play(
-            sub5.animate().shift(2 * H + h), sub9.animate().shift(2 * H + 3 * sh + h),
-            sub2.animate().shift(2 * H + sh + h),
-            sub12.animate().shift(h)
+            sub5.animate().shift(1 * H + h + 2*sh - 2*sh), 
+            sub9.animate().shift(2 * H + 3 * sh + h - 2*sh),
+            sub2.animate().shift(2 * H + sh + h - 2*sh),
+            sub12.animate().shift(h - 2*sh)
         )
         self.wait()
 
@@ -936,21 +947,26 @@ class Solution(Scene):
         pos9 = sub9.get_center()
         pos12 = sub12.get_center()
 
+        cor2 = 2*sh
+        cor5 = -4*sh
+        cor9 = 2*sh
+        cor12 = 0*sh
+
         # That’s because all the trees we can construct using rehangings are exactly the trees we can construct by stacking the buds below the root in any order. 
 
         for i in range(3):
             if i == 0:
                 self.play(
-                    sub2.animate().shift(3 * sh - h),
-                    sub5.animate().shift(2 * sh - h),
-                    sub9.animate().shift(-2 * H - 7 * sh - h),
-                    sub12.animate().shift(-2 * H + sh - h),
+                    sub2.animate().shift(3 * sh - h + cor2),
+                    sub5.animate().shift(2 * sh - h + cor5),
+                    sub9.animate().shift(-2 * H - 7 * sh - h + cor9),
+                    sub12.animate().shift(-2 * H + sh - h + cor12),
                 )
                 starting_tree.add_subtree(self, sub9, 1)
                 starting_tree.add_subtree(self, sub12, 1)
                 starting_tree.add_subtree(self, sub5, 10)
                 starting_tree.add_subtree(self, sub2, 13)
-
+                
                 sub5 = starting_tree.remove_subtree(self, 5)
                 sub2 = starting_tree.remove_subtree(self, 2)
                 sub12 = starting_tree.remove_subtree(self, 12)
@@ -958,16 +974,16 @@ class Solution(Scene):
 
             if i == 1:
                 self.play(
-                    sub2.animate().shift(-2 * H - 2 * sh - h),
-                    sub5.animate().shift(-2 * H + 5 * sh - h),
-                    sub9.animate().shift(-2 * sh - h),
-                    sub12.animate().shift(-2 * H + 2 * sh - h),
+                    sub2.animate().shift(-2 * H - 2 * sh - h + cor2),
+                    sub5.animate().shift(-2 * H + 5 * sh - h + cor5),
+                    sub9.animate().shift(-2 * sh - h + cor9),
+                    sub12.animate().shift(-2 * H + 2 * sh - h + cor12),
                 )
                 starting_tree.add_subtree(self, sub2, 1)
                 starting_tree.add_subtree(self, sub5, 1)
                 starting_tree.add_subtree(self, sub12, 1)
                 starting_tree.add_subtree(self, sub9, 13)
-
+                
                 sub9 = starting_tree.remove_subtree(self, 9)
                 sub2 = starting_tree.remove_subtree(self, 2)
                 sub5 = starting_tree.remove_subtree(self, 5)
@@ -975,17 +991,17 @@ class Solution(Scene):
 
             if i == 2:
                 self.play(
-                    sub2.animate().shift(-0 * H - 1 * sh - h),
-                    sub5.animate().shift(-2 * H + 5 * sh - h),
-                    sub9.animate().shift(-2 * sh - h),
-                    sub12.animate().shift(-0 * H - 1 * sh - h),
+                    sub2.animate().shift(-0 * H - 1 * sh - h + cor2),
+                    sub5.animate().shift(-2 * H + 5 * sh - h + cor5),
+                    sub9.animate().shift(-3 * sh - h + cor9),
+                    sub12.animate().shift(-0 * H - 1 * sh - h + cor12),
                 )
 
                 starting_tree.add_subtree(self, sub5, 1)
                 starting_tree.add_subtree(self, sub2, 6)
                 starting_tree.add_subtree(self, sub12, 7)
                 starting_tree.add_subtree(self, sub9, 8)
-
+                
                 sub2 = starting_tree.remove_subtree(self, 2)
                 sub12 = starting_tree.remove_subtree(self, 12)
                 sub9 = starting_tree.remove_subtree(self, 9)
@@ -1002,18 +1018,19 @@ class Solution(Scene):
         # Ok, so now it is a good time to recall what is the problem we actually want to solve. We want to minimize the number of leaves. So how can we do it? Well, whenever we stack two buds on top of each other, the bottom bud covers one leaf from the bud above it. 
         self.next_section(skip_animations=False)
         self.play(
-            sub5.animate().shift(-2*H - h - 2*sh),
-            sub2.animate().shift(-h - 5*sh)
+            sub5.animate().shift(-2*H - h - 4*sh),
+            sub2.animate().shift(-h - 2*sh)
         )
         self.wait()
 
         # TODO fix
-        # sub5.add_subtree(self, sub2, 8)
-        # sub5.remove_subtree(self, 2)
-        # sub5.add_subtree(self, sub2, 8)
-        # sub5.remove_subtree(self, 2)
-        # sub5.add_subtree(self, sub2, 8)
-        # sub5.remove_subtree(self, 2)
+        sub5.add_subtree(self, sub2, 8)
+        self.wait(0.3)
+        sub2 = sub5.remove_subtree(self, 2)
+        self.wait(0.3)
+        sub5.add_subtree(self, sub2, 8)
+        self.wait(0.3)
+        sub2 = sub5.remove_subtree(self, 2)
 
         # So, if you think about it, the best we can do is to just stack all the buds on top of each other. 
 
@@ -1031,6 +1048,7 @@ class Solution(Scene):
         self.play(sub9.animate().shift(starting_tree.vertices[13].get_center() - sub9.vertices[9].get_center() + 0.3*DOWN + 2*sh))
         starting_tree.add_subtree(self, sub9, 13)
 
+        self.wait()
 
         # Nice, this means there is an easy formula that computes the answer. We first split the tree into buds. Then we count the number of all the blue nodes [flash] and from that we subtract the number of red nodes minus one. 
         
@@ -1347,7 +1365,7 @@ class Solution2(Scene):
         )
         self.wait()
 
-        self.play(Circumscribe(example_tree.vertices[1]), color = RED)
+        self.play(Circumscribe(example_tree.vertices[1], color = RED))
         self.wait()
 
         # decompose the right tree
@@ -1361,6 +1379,18 @@ class Solution2(Scene):
             Circumscribe(Group(sample_tree.vertices[1], sample_tree.vertices[3]), color = RED)
         )
         self.wait()
+
+        self.play(
+            Circumscribe(label_ans, color = RED)
+        )
+        self.wait()
+
+
+        self.play(
+            Circumscribe(label_ans2, color = RED)
+        )
+        self.wait()
+
 
 
 

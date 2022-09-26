@@ -21,9 +21,15 @@ def random_pop_file():
 
 def random_whoosh_file():
     return f"audio/whoosh/whoosh_{random.randint(0, 3)}.wav"
-
-
 whoosh_gain = -8
+
+def random_whoops_file():
+    return f"audio/whoosh/whoosh_{random.randint(0, 3)}.wav"
+
+def random_rubik_file():
+    return f"audio/cube/r{random.randint(1, 20)}.wav"
+
+
 # use as: 
 # self.add_sound(random_whoosh_file(), time_offset = 0.15, gain = whoosh_gain)
 
@@ -204,7 +210,7 @@ class Tree(Graph):
         self.inactive_are_grey = inactive_are_grey
 
     def scale(self, scale_factor, **kwargs):
-        self.scale_factor = scale_factor
+        self.scale_factor *= scale_factor
         return super().scale(scale_factor)
 
     def get_root(self) -> int:  # VR probably works now but rather have it as separate parameter
@@ -453,6 +459,7 @@ class Tree(Graph):
         # scene.add(curve)
         curve.shift(subtree.get_center() - root_pos)
 
+        scene.add_sound(random_whoops_file(), time_offset = 0.0)
         scene.play(
             MoveAlongPath(subtree, curve),
             self.animate().shift(shift_horizontal),
@@ -487,7 +494,7 @@ class Tree(Graph):
     def get_leaves(self) -> Set[int]:
         res = set()
         for vertex in self.vertices:
-            if len(self.sons(vertex)) == 0:
+            if len(self.sons(vertex)) == 0 and vertex != 1: # bad hack
                 res.add(vertex)
         return res
 
@@ -497,7 +504,7 @@ class Tree(Graph):
         res = set()
 
         for vertex in self.vertices:
-            if vertex not in leaves and all(
+            if vertex not in leaves and vertex != 1 and all( # bad hack
                     neighbour in leaves or neighbour == self.parent(vertex) for neighbour in adj[vertex]):
                 res.add(vertex)
         return res
@@ -525,8 +532,7 @@ class Tree(Graph):
         leaves = self.get_leaves()
         buds = self.get_buds()
         for vertex in self.vertices:
-            if self[
-                vertex].get_color().__str__() != solarized.GRAY.__str__() and vertex not in buds and vertex not in leaves:
+            if self[vertex].get_color().__str__() != solarized.GRAY.__str__() and vertex not in buds and vertex not in leaves:
                 colours[vertex] = solarized.GRAY
         for vertex in leaves:
             if self[vertex].get_color().__str__() != leaf_colour.__str__():
