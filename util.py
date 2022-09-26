@@ -47,7 +47,7 @@ example_edges = [
     (12, 13),
 ]
 red_nodes = [2, 5, 9, 12]
-blue_nodes = [x for x in range(1, 14) if x not in red_nodes]
+blue_nodes = [x for x in range(2, 14) if x not in red_nodes]
 
 sample_vertices = list(range(1, 8))
 sample_edges = [
@@ -359,7 +359,8 @@ class Tree(Graph):
         self.set_colors(subtree.get_colours())
         Forest.remove(subtree)
         scene.play(
-            Create(parent_edge)
+            Create(parent_edge),
+            run_time = 0.2
         )
         scene.remove(parent_edge)
 
@@ -369,7 +370,8 @@ class Tree(Graph):
         self.parents[subtree.get_root()] = vertex
         animations = [self[k].animate().set_fill(v) for k, v in self.get_colours().items()]
         scene.play(
-            *animations
+            *animations,
+            run_time = 0.2  
         )
 
         # nothing should happen on the scene
@@ -418,20 +420,21 @@ class Tree(Graph):
 
         # delete the parent edge
         scene.play(
-            Uncreate(parent_edge)
+            Uncreate(parent_edge),
+            run_time = 0.2
         )
-        scene.wait()
         animations = [self[k].animate.set_fill(v) for k, v in self.get_colours_to_set().items()]
 
         if len(animations) > 0:
             scene.play(
-                *animations
+                *animations,
+                run_time = 0.2
             )
 
         scene.wait()
         return subtree
 
-    def rehang_subtree(self, scene, v_from, v_to, new_pos, dir1, dir2, shift_horizontal=0):
+    def rehang_subtree(self, scene, v_from, v_to, new_pos, dir1, dir2, shift_horizontal=0, additional_anims = []):
         Forest.isUpdating = True
         root_pos = self.vertices[v_from].get_center()
 
@@ -444,7 +447,7 @@ class Tree(Graph):
         curve = CubicBezier(
             root_pos,
             root_pos + dir1,
-            new_pos + dir2,
+            new_pos + shift_horizontal + dir2,
             new_pos + shift_horizontal,
         )
         # scene.add(curve)
@@ -452,7 +455,8 @@ class Tree(Graph):
 
         scene.play(
             MoveAlongPath(subtree, curve),
-            self.animate().shift(shift_horizontal)
+            self.animate().shift(shift_horizontal),
+            *additional_anims,
         )
         Forest.isUpdating = False
         self.add_subtree(scene, subtree, v_to)

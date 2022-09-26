@@ -38,10 +38,12 @@ class Intro(Scene):
         num_img = 26
         img_positions = []
         n1 = 10
-        n2 = 10
+        n11 = 5
+        n2 = 20
 
         for n, l1, l2 in [
             (n1, [-4, -2, 0, 2, 4], [-2, 0, 2]),
+            (n11, [-4, -2, 2, 4], [-2, 0, 2]),
             (n2, [-6, -4, -2], [-2, 0, 2]),
         ]:
             for _ in range(n):
@@ -61,7 +63,7 @@ class Intro(Scene):
         dalle_images = []
         for i in range(len(img_positions)):
             dalle_images.append(
-                ImageMobject("img/dalle/p{}.jpg".format(i + 1)).scale_to_fit_width(2).move_to(
+                ImageMobject("img/dalle/p{}.jpg".format((i % num_img) + 1)).scale_to_fit_width(2).move_to(
                     img_positions[i]
                 )
             )
@@ -80,7 +82,7 @@ class Intro(Scene):
                     FadeOut(dalle_images[i])
                 )
             )
-            if i == n1:
+            if i == n1+n11:
                 anims.append(
                     FadeIn(gpt3_title)
                 )
@@ -112,19 +114,24 @@ class Polylog(Scene):
 
         logo_dalle = ImageMobject("img/D2.png").scale(0.5).set_z_index(100)
         logo_solarized = ImageMobject("img/logo-solarized.png").scale(0.034).shift(0.3 * UP + 0.05 * LEFT)
-        prompt_dalle = Tex(
-            r"DALL$\cdot$E 2 on prompt: A logo suitable for a youtube channel about computer science",
-            color=GRAY
-        ).scale(0.5).next_to(logo_dalle, DOWN)
+        prompts_dalle = [
+            Tex(
+                str,
+                color=GRAY
+            ).scale(0.5).next_to(logo_dalle, DOWN)
+            for str in [r"DALL$\cdot$E 2 on the prompt:", r"A logo suitable for a youtube channel about computer science"]
+        ]
+        Group(*prompts_dalle).arrange(RIGHT).next_to(logo_dalle, DOWN)
 
         asterisk = Tex(
-            r"*As of 2022, neural nets generating artificial images still struggle with language. Probably going to be solved pretty soon. ",
+            r"*As of 2022, neural nets generating artificial images still struggle with texts inside the images. Probably going to be solved soon. ",
             color=GRAY
-        ).scale(0.3).next_to(prompt_dalle, DOWN).shift(0.5 * DOWN)
+        ).scale(0.3).next_to(Group(*prompts_dalle), DOWN).shift(0.5 * DOWN)
 
         self.play(
             FadeIn(logo_dalle),
-            FadeIn(prompt_dalle),
+            FadeIn(prompts_dalle[0]),
+            FadeIn(prompts_dalle[1]),
             FadeIn(asterisk)
         )
         self.wait()
@@ -133,7 +140,8 @@ class Polylog(Scene):
 
         self.play(
             FadeOut(logo_dalle),
-            FadeOut(prompt_dalle),
+            FadeOut(prompts_dalle[0]),
+            FadeOut(prompts_dalle[1]),
             FadeOut(asterisk),
         )
 
@@ -215,58 +223,58 @@ class Statement(Scene):
         )
         self.wait()
 
-        example_vertex = example_tree.vertices[2]
-        self.play(
-            example_vertex.animate().set_color(RED)
-        )
-        self.wait()
+        # example_vertex = example_tree.vertices[2]
+        # self.play(
+        #     example_vertex.animate().set_color(RED)
+        # )
+        # self.wait()
 
-        # parent
-        example_parent = example_tree.vertices[1]
-        edge_parent = create_arrow_between_nodes(
-            example_vertex.get_center(),
-            example_parent.get_center(),
-            node_radius,
-            RED,
-            arrow_width
-        )
-        self.play(
-            Create(edge_parent),
-        )
-        self.play(
-            Flash(example_parent, color=RED)
-        )
-        self.play(
-            Uncreate(edge_parent)
-        )
-        self.wait()
+        # # parent
+        # example_parent = example_tree.vertices[1]
+        # edge_parent = create_arrow_between_nodes(
+        #     example_vertex.get_center(),
+        #     example_parent.get_center(),
+        #     node_radius,
+        #     RED,
+        #     arrow_width
+        # )
+        # self.play(
+        #     Create(edge_parent),
+        # )
+        # self.play(
+        #     Flash(example_parent, color=RED)
+        # )
+        # self.play(
+        #     Uncreate(edge_parent)
+        # )
+        # self.wait()
 
-        # children
-        example_children = [
-            example_tree.vertices[3],
-            example_tree.vertices[4],
-            example_tree.vertices[5],
-        ]
-        edge_children = [
-            create_arrow_between_nodes(
-                example_vertex.get_center(),
-                child.get_center(),
-                node_radius,
-                RED,
-                arrow_width
-            ) for child in example_children
-        ]
-        self.play(
-            *[Create(e) for e in edge_children],
-        )
-        self.play(
-            *[Flash(child, color=RED) for child in example_children]
-        )
-        self.play(
-            *[Uncreate(e) for e in edge_children],
-            example_vertex.animate().set_color(GRAY)
-        )
-        self.wait()
+        # # children
+        # example_children = [
+        #     example_tree.vertices[3],
+        #     example_tree.vertices[4],
+        #     example_tree.vertices[5],
+        # ]
+        # edge_children = [
+        #     create_arrow_between_nodes(
+        #         example_vertex.get_center(),
+        #         child.get_center(),
+        #         node_radius,
+        #         RED,
+        #         arrow_width
+        #     ) for child in example_children
+        # ]
+        # self.play(
+        #     *[Create(e) for e in edge_children],
+        # )
+        # self.play(
+        #     *[Flash(child, color=RED) for child in example_children]
+        # )
+        # self.play(
+        #     *[Uncreate(e) for e in edge_children],
+        #     example_vertex.animate().set_color(GRAY)
+        # )
+        # self.wait()
 
         # leaves
         self.play(
@@ -346,11 +354,16 @@ class Statement(Scene):
         H = 1 * DOWN
 
         sugar(self, example_tree, 5, 13, 0)
+        sugar(self, example_tree, 5, 2, 0)
+
+
         self.wait()
 
         self.wait(2)
 
         # Notice that in this case, after we cut  this bud off the tree, this guy becomes a new bud, and after we put the bud back here, this guy stops being a leaf and also this is not a bud anymore.
+
+        anims = []
 
         ar = Arrow(
             start=ORIGIN,
@@ -360,6 +373,11 @@ class Statement(Scene):
             example_tree.vertices[2].get_center() + (1 * LEFT + 1 * UP) / 2.0
         )
 
+        anims.append(
+            Succession(
+                # TODO
+            )
+        )
         self.play(
             # Flash(example_tree.vertices[2], color = RED),
             FadeIn(ar),
@@ -382,6 +400,8 @@ class Statement(Scene):
             ar.animate().shift(H),
         )
         self.wait()
+
+        sugar(self, example_tree, 5, 13, 0)
 
         self.play(
             FadeOut(ar)
@@ -521,7 +541,7 @@ class Statement(Scene):
 
 class Solution(Scene):
     def construct(self):
-        self.next_section(skip_animations=True)
+        self.next_section(skip_animations=False)
         caption = Tex("Solution", color=GRAY).scale(3)
         self.play(
             FadeIn(caption)
@@ -603,12 +623,12 @@ class Solution(Scene):
 
         # And that holds in general. I realized that I can repeatedly cut the buds from the tree in any order and rehang them below the root, like this. Now I draw my pointy circle around each bud and start doing some random bud-cutting operations. You can see how the nodes in the same circle always stay together. 
 
-        self.next_section(skip_animations=True)
+        self.next_section(skip_animations=False)
         sugar(self, example_tree, 5, 1, -5)
         sugar(self, example_tree, 12, 1, 5)
 
         circle_shifts = [
-            1, 1, 1, 1
+            0.4, 0.4, 0.4, 0.3
         ]
         circles = [
             CubicBezier(
@@ -620,8 +640,8 @@ class Solution(Scene):
             ),
             CubicBezier(
                 ORIGIN,
-                1.4 * (2 * LEFT + 2 * DOWN),
-                1.4 * (1 * RIGHT + 2 * DOWN),
+                1.2 * (2 * LEFT + 2 * DOWN),
+                1.4 * (1.1 * RIGHT + 2 * DOWN),
                 ORIGIN,
                 color=BLACK
             ),
@@ -634,8 +654,8 @@ class Solution(Scene):
             ),
             CubicBezier(
                 ORIGIN,
-                1.4 * (1.5 * LEFT + 1.5 * DOWN),
-                1.4 * (1.5 * RIGHT + 1.5 * DOWN),
+                1.3 * (1.5 * LEFT + 2 * DOWN),
+                1.3 * (1.5 * RIGHT + 2 * DOWN),
                 ORIGIN,
                 color=BLACK
             ),
@@ -645,6 +665,7 @@ class Solution(Scene):
         example_tree.add_object_to_vertex(2, self, circles[1], circle_shifts[1])
         example_tree.add_object_to_vertex(9, self, circles[2], circle_shifts[2])
         example_tree.add_object_to_vertex(12, self, circles[3], circle_shifts[3])
+        
 
         sugar(self, example_tree, 5, 10, -1)
         sugar(self, example_tree, 2, 6, 0)
@@ -658,7 +679,7 @@ class Solution(Scene):
         sugar(self, example_tree, 5, 1, -5)
         sugar(self, example_tree, 12, 1, 5)
 
-        # Ok, so all the rehangings that we do are just shuffling the four buds in some ways and the buds cannot be split. But actually, on the other hand,
+        # Ok, so all the rehangings that we do are just shuffling the four buds in some ways and the buds cannot be split. But actually, on the other hand, 
         self.next_section(skip_animations=False)
 
         # if you take these four buds
@@ -739,101 +760,93 @@ class Solution(Scene):
         #        (middle_tree.vertices[1].get_center() - starting_tree.vertices[1].get_center()) / 2.0
         #    )
         #)
-        t1.rehang_subtree(self, 5, 1, t1.vertices[1].get_center() + (-5 * sh + H) * small_tree_scale,
-                          2 * DOWN * small_tree_scale, 2 * DOWN * small_tree_scale,
-                          shift_horizontal=(middle_tree.vertices[1].get_center() - starting_tree.vertices[1].get_center()) / 2.0)
         arrow_shift = 2 * DOWN
         ar_buffer = 0.5
 
+        shft_tree1 = shift_horizontal=(middle_tree.vertices[1].get_center() - starting_tree.vertices[1].get_center()) / 2.0
+
         a1 = Arrow(
             starting_tree.vertices[1].get_center() + arrow_shift,
-            t1.vertices[1].get_center() + arrow_shift,
+            starting_tree.vertices[1].get_center() + shft_tree1 + arrow_shift,
             color=BLUE,
             buff=ar_buffer
         )
-        self.play(
-            Create(a1)
-        )
+        t1.rehang_subtree(self, 5, 1, t1.vertices[1].get_center() + (-5 * sh + H) * small_tree_scale,
+                          2 * DOWN * small_tree_scale, 2 * DOWN * small_tree_scale, shft_tree1
+                          , additional_anims = [Create(a1)])
 
         t2 = t1.copy()
-        self.play(
-            t2.animate().shift(
-                (middle_tree.vertices[1].get_center() - starting_tree.vertices[1].get_center()) / 2.0
-            )
-        )
-        t2.rehang_subtree(self, 12, 1, t2.vertices[1].get_center() + (+5 * sh + H) * small_tree_scale,
-                          2 * DOWN * small_tree_scale, 2 * DOWN * small_tree_scale, )
+        # self.play(
+        #     t2.animate().shift(
+        #         (middle_tree.vertices[1].get_center() - starting_tree.vertices[1].get_center()) / 2.0
+        #     )
+        # )
         a2 = Arrow(
             t1.vertices[1].get_center() + arrow_shift,
-            t2.vertices[1].get_center() + arrow_shift,
+            t1.vertices[1].get_center() + shft_tree1 + arrow_shift,
             color=BLUE,
             buff=ar_buffer
         )
-        self.play(
-            Create(a2)
-        )
+        t2.rehang_subtree(self, 12, 1, t2.vertices[1].get_center() + (+5 * sh + H) * small_tree_scale,
+                          2 * DOWN * small_tree_scale, 2 * DOWN * small_tree_scale, 
+                          shift_horizontal=shft_tree1, additional_anims = [Create(a2)]
+                          )
         self.wait()
 
         # but the same holds also for the final tree. 
 
         t3 = example_tree.copy()
-        self.play(
-            t3.animate().shift(
-                -(example_tree.vertices[1].get_center() - middle_tree.vertices[1].get_center()) / 3.0
-            )
-        )
-        t3.rehang_subtree(self, 5, 1, t3.vertices[1].get_center() + (-5 * sh + H) * small_tree_scale,
-                          2 * DOWN * small_tree_scale, 2 * DOWN * small_tree_scale, )
-
+        # self.play(
+        #     t3.animate().shift(
+        #         -(example_tree.vertices[1].get_center() - middle_tree.vertices[1].get_center()) / 3.0
+        #     )
+        # )¨
+        shft_tree2 = -(example_tree.vertices[1].get_center() - middle_tree.vertices[1].get_center()) / 3.0
         a3 = Arrow(
             example_tree.vertices[1].get_center() + arrow_shift,
-            t3.vertices[1].get_center() + arrow_shift,
+            example_tree.vertices[1].get_center() + shft_tree2 + arrow_shift,
             color=RED,
             buff=ar_buffer
         )
-        self.play(
-            Create(a3)
+        t3.rehang_subtree(self, 5, 1, t3.vertices[1].get_center() + (-5 * sh + H) * small_tree_scale,
+                          2 * DOWN * small_tree_scale, 2 * DOWN * small_tree_scale, shft_tree2
+                                          , additional_anims = [Create(a3)]
         )
 
+
         t4 = t3.copy()
-        self.play(
-            t4.animate().shift(
-                -(example_tree.vertices[1].get_center() - middle_tree.vertices[1].get_center()) / 3.0
-            )
-        )
-        t4.rehang_subtree(self, 12, 1, t4.vertices[1].get_center() + (+5 * sh + H) * small_tree_scale,
-                          2 * DOWN * small_tree_scale, 2 * DOWN * small_tree_scale, )
+        # self.play(
+        #     t4.animate().shift(
+        #         -(example_tree.vertices[1].get_center() - middle_tree.vertices[1].get_center()) / 3.0
+        #     )
+        # )
         a4 = Arrow(
             t3.vertices[1].get_center() + arrow_shift,
-            t4.vertices[1].get_center() + arrow_shift,
+            t3.vertices[1].get_center() + shft_tree2 + arrow_shift,
             color=RED,
             buff=ar_buffer
         )
-        self.play(
-            Create(a4)
+        t4.rehang_subtree(self, 12, 1, t4.vertices[1].get_center() + (+5 * sh + H) * small_tree_scale,
+                          2 * DOWN * small_tree_scale, 2 * DOWN * small_tree_scale,         shft_tree2, additional_anims = [Create(a4)]
         )
         self.wait()
 
         t5 = t4.copy()
-        self.play(
-            t5.animate().shift(
-                -(example_tree.vertices[1].get_center() - middle_tree.vertices[1].get_center()) / 3.0
-            )
-        )
-        t5.rehang_subtree(self, 9, 1, t5.vertices[1].get_center() + (+2 * sh + H) * small_tree_scale,
-                          2 * DOWN * small_tree_scale, 2 * DOWN * small_tree_scale, )
+        # self.play(
+        #     t5.animate().shift(
+        #         -(example_tree.vertices[1].get_center() - middle_tree.vertices[1].get_center()) / 3.0
+        #     )
+        # )
         a5 = Arrow(
             t4.vertices[1].get_center() + arrow_shift,
-            t5.vertices[1].get_center() + arrow_shift,
+            t4.vertices[1].get_center() + shft_tree2 + arrow_shift,
             color=RED,
             buff=ar_buffer
         )
-        self.play(
-            Create(a5)
+        t5.rehang_subtree(self, 9, 1, t5.vertices[1].get_center() + (+2 * sh + H) * small_tree_scale,
+                          2 * DOWN * small_tree_scale, 2 * DOWN * small_tree_scale,         shft_tree2, additional_anims = [Create(a5)]
         )
         self.wait()
-
-        return
 
         # If I now revert the operations that convert the final tree into the special form, I get a way of converting my starting tree to the final one. 
         # So, we proved that the rehanging operations can create any possible configuration of the buds. 
@@ -888,7 +901,10 @@ class Solution(Scene):
         )
         self.wait()
 
-        # But that was a digression, let’s go back to our problem. By now, we actually understand perfectly what’s the deal with the rehanging operations. In fact, this whole rehanging business was just a cruel trick that the problem setter played on us.
+
+
+        # But that was a digression, let’s go back to our problem. By now, we actually understand perfectly what’s the deal with the rehanging operations. In fact, this whole rehanging business was just a cruel trick that the problem setter played on us. 
+        self.next_section(skip_animations=False)
 
         sugar(self, starting_tree, 5, 1, -5)
         sugar(self, starting_tree, 12, 1, 5)
@@ -983,136 +999,83 @@ class Solution(Scene):
             )
             self.wait()
 
-        self.wait(10)
-
-        return
-
-        # TODO rethink
-        self.play(
-            *[
-                Flash(example_tree.vertices[v], color=RED) for v in red_nodes
-            ]
-        )
-        self.wait()
-
-        self.play(
-            *[
-                Flash(example_tree.vertices[v], color=BLUE) for v in blue_nodes
-            ]
-        )
-        self.wait()
-
-        # Ok, now we understand what rehanging is doing quite well, so what is again the problem we actually want to solve? Right, we want as few leaves as possible. Hm, can we somehow use the fact that leaves are all blue nodes? 
+        # Ok, so now it is a good time to recall what is the problem we actually want to solve. We want to minimize the number of leaves. So how can we do it? Well, whenever we stack two buds on top of each other, the bottom bud covers one leaf from the bud above it. 
         self.next_section(skip_animations=False)
-        blue_nonleaves = [1, 11]
-        blue_leaves = [x for x in blue_nodes if x not in blue_nonleaves]
+        self.play(
+            sub5.animate().shift(-2*H - h - 2*sh),
+            sub2.animate().shift(-h - 5*sh)
+        )
+        self.wait()
 
-        circles_leaves = [
-            Circle(radius=0.3, color=BLUE).move_to(example_tree.vertices[v])
-            for v in blue_leaves
+        # TODO fix
+        # sub5.add_subtree(self, sub2, 8)
+        # sub5.remove_subtree(self, 2)
+        # sub5.add_subtree(self, sub2, 8)
+        # sub5.remove_subtree(self, 2)
+        # sub5.add_subtree(self, sub2, 8)
+        # sub5.remove_subtree(self, 2)
+
+        # So, if you think about it, the best we can do is to just stack all the buds on top of each other. 
+
+        self.play(starting_tree.animate().shift(-1.5*H))
+        
+        self.play(sub5.animate().shift(starting_tree.vertices[1].get_center() - sub5.vertices[5].get_center() + 1*H))
+        starting_tree.add_subtree(self, sub5, 1)
+
+        self.play(sub2.animate().shift(starting_tree.vertices[5].get_center() - sub2.vertices[2].get_center() + 2*H))
+        starting_tree.add_subtree(self, sub2, 7)
+
+        self.play(sub12.animate().shift(starting_tree.vertices[4].get_center() - sub12.vertices[12].get_center() + 1*H))
+        starting_tree.add_subtree(self, sub12, 4)
+
+        self.play(sub9.animate().shift(starting_tree.vertices[13].get_center() - sub9.vertices[9].get_center() + 0.3*DOWN + 2*sh))
+        starting_tree.add_subtree(self, sub9, 13)
+
+
+        # Nice, this means there is an easy formula that computes the answer. We first split the tree into buds. Then we count the number of all the blue nodes [flash] and from that we subtract the number of red nodes minus one. 
+        
+
+        sub9 = starting_tree.remove_subtree(self, 9)
+        sub12 = starting_tree.remove_subtree(self, 12)
+        sub2 = starting_tree.remove_subtree(self, 2)
+        sub5 = starting_tree.remove_subtree(self, 5)
+        
+        for pos in [pos2, pos5, pos9, pos12]:
+            pos += 2*UP
+
+        self.play(
+            sub2.animate().move_to(pos2),
+            sub5.animate().move_to(pos5),
+            sub9.animate().move_to(pos9),
+            sub12.animate().move_to(pos12),
+        )
+
+
+        label_blue = Tex(r"\# blue nodes $= 8$", color = BLUE).move_to(
+            4*LEFT + 2*DOWN
+        )
+        label_red = Tex(r"\# red nodes $= 4$", color = RED).next_to(label_blue, DOWN).align_to(label_blue, LEFT)
+        label_ans = Tex(r"Answer  $= 8 - (4-1) = 5$", color = GRAY).next_to(label_red, DOWN).align_to(label_blue, LEFT)
+
+        blue_nodes = [
+            sub2.vertices[3],
+            sub2.vertices[4],
+            sub5.vertices[6],
+            sub5.vertices[7],
+            sub5.vertices[8],
+            sub9.vertices[10],
+            sub9.vertices[11],
+            sub12.vertices[13],
         ]
-        circles_nonleaves = [
-            Circle(radius=0.3, color=BLUE).move_to(example_tree.vertices[v])
-            for v in blue_nonleaves
+        red_nodes = [
+            sub2.vertices[2],
+            sub5.vertices[5],
+            sub9.vertices[9],
+            sub12.vertices[12],
         ]
-
-        # Well, instead of minimizing the number of leaves we can maximize the number of blue nodes that are not leaves. That means we want as many as possible of these guys.
         self.play(
             *[
-                Create(c) for c in circles_leaves
-            ]
-        )
-        self.wait()
-
-        self.play(
-            *[
-                Uncreate(c) for c in circles_leaves
-            ]
-        )
-        self.wait()
-
-        self.play(
-            *[
-                Create(c) for c in circles_nonleaves
-            ]
-        )
-        self.wait()
-
-        # These blue nodes are not leaves, because they have at least one red child that covers them. This child needs to be a red node.
-
-        arrows = [
-            Arrow(start=example_tree.vertices[1], end=example_tree.vertices[2], color=RED, buff=0.1),
-            Arrow(start=example_tree.vertices[1], end=example_tree.vertices[9], color=RED, buff=0.1),
-            Arrow(start=example_tree.vertices[11], end=example_tree.vertices[12], color=RED, buff=0.1),
-        ]
-
-        self.play(
-            *[Create(ar) for ar in arrows]
-        )
-        self.wait()
-        self.play(
-            *[Flash(example_tree.vertices[v], color=RED) for v in [2, 9, 12]]
-        )
-        self.play(
-            *[Uncreate(ar) for ar in arrows],
-            *[
-                Uncreate(c) for c in circles_nonleaves
-            ],
-        )
-        self.wait()
-
-        # At this point I finally realized what was happening when I was trying to solve the problem manually. I started by rehanging this bud, which decreased the number of leaves by one. The reason this worked is that this bud was hung below a red node, which is kind of wasteful. So after I took the bud off, the number of leaves did not increase. 
-
-        sugar(self, example_tree, 5, 10, 0)
-
-        ar = Arrow(
-            start=ORIGIN,
-            end=(1 * RIGHT + 1 * DOWN) / 1.0,
-            color=RED,
-        ).move_to(
-            example_tree.vertices[2].get_center() + (1 * LEFT + 1 * UP) / 2.0
-        )
-        self.play(
-            FadeIn(ar),
-        )
-        self.wait()
-
-        # Then I used my red node to cover one blue leaf and that decreased the number of leaves by one. 
-
-        self.play(
-            ar.animate().shift(
-                example_tree.vertices[10].get_center()
-                - example_tree.vertices[2].get_center()
-            )
-        )
-        self.wait()
-
-        # But there was also this blue node with two red children, which is again kind of wasteful. So when I took this new bud off, I again did not create any new leaf. So I could use my bud to cover one more leaf. 
-
-        self.play(
-            ar.animate().shift(
-                example_tree.vertices[1].get_center()
-                - example_tree.vertices[10].get_center()
-            )
-        )
-        self.wait()
-        self.play(
-            FadeOut(ar)
-        )
-        self.wait()
-
-        sugar(self, example_tree, 2, 6, 0)
-
-        # And now it is clear that there is no better solution than having five leaves. That’s because in total we have 9 blue nodes but only four red nodes. These four nodes can cover at most four different blue nodes [šipky z červených do zelených], hence the smallest number of leaves we can hope for is 9-4 which is 5. 
-
-        label_blue = Tex(r"\# blue nodes $= 9$", color=BLUE).move_to(
-            4 * LEFT + 1 * DOWN
-        )
-        label_red = Tex(r"\# blue nodes $= 4$", color=RED).next_to(label_blue, DOWN)
-
-        self.play(
-            *[
-                Flash(example_tree.vertices[v], color=BLUE) for v in blue_nodes
+                Flash(v, color = BLUE) for v in blue_nodes
             ],
             FadeIn(label_blue)
         )
@@ -1120,67 +1083,292 @@ class Solution(Scene):
 
         self.play(
             *[
-                Flash(example_tree.vertices[v], color=RED) for v in red_nodes
+                Flash(v, color = RED) for v in red_nodes
             ],
             FadeIn(label_red)
         )
         self.wait()
 
-        arrows = [
-            Arrow(start=example_tree.vertices[2], end=example_tree.vertices[6], color=RED, buff=0.1),
-            Arrow(start=example_tree.vertices[9], end=example_tree.vertices[1], color=RED, buff=0.1),
-            Arrow(start=example_tree.vertices[12], end=example_tree.vertices[11], color=RED, buff=0.1),
-            Arrow(start=example_tree.vertices[5], end=example_tree.vertices[10], color=RED, buff=0.1),
-        ]
-        self.play(
-            *[Create(ar) for ar in arrows]
-        )
-        self.wait()
-        self.play(
-            *[Uncreate(ar) for ar in arrows]
-        )
-        self.wait()
+        pos8 = 7
+        pos4 = pos8 + 3
+        blue_num = Tex(r"$8$", color = BLUE).move_to(label_blue[0][-1].get_center())
+        red_num = Tex(r"$4$", color = RED).move_to(label_red[0][-1].get_center())
 
-        label_dif = Tex(r"\# leaves $\ge 9 - 4 = 5$", color=GRAY).next_to(label_red, DOWN)
-        pos9 = 8
-        pos4 = pos9 + 2
-
-        label_dif[0][10].set_color(RED)
-
-        self.play(
-            FadeOut(label_blue[0][:-1]),
-            FadeOut(label_red[0][:-1]),
-        )
         self.play(
             Succession(
-                Write(label_dif[0][0:pos9]),
-                label_blue[0][-1].animate().move_to(label_dif[0][pos9].get_center()),
-                Write(label_dif[0][pos9 + 1:pos4]),
-                label_red[0][-1].animate().move_to(label_dif[0][pos4].get_center()),
-                Write(label_dif[0][pos4 + 1:]),
+                Write(label_ans[0][0:pos8]),
+                blue_num.animate().move_to(label_ans[0][pos8].get_center()),
+                Write(label_ans[0][pos8+1:pos4]),
+                red_num.animate().move_to(label_ans[0][pos4].get_center()),
+                Write(label_ans[0][pos4+1:]),                
+            )
+        )     
+
+        
+        # The minus one is because one red node has to hang below the root and each remaining one can cover one blue guy.   
+
+        self.play(sub5.animate().shift(starting_tree.vertices[1].get_center() - sub5.vertices[5].get_center() + 1*H))
+        self.play(Flash(sub5.vertices[5], color = RED))
+        starting_tree.add_subtree(self, sub5, 1)
+
+        self.play(sub2.animate().shift(starting_tree.vertices[5].get_center() - sub2.vertices[2].get_center() + 2*H))
+        self.play(Flash(sub2.vertices[2], color = RED),Flash(starting_tree.vertices[7], color = BLUE))
+        starting_tree.add_subtree(self, sub2, 7)
+
+        self.play(sub12.animate().shift(starting_tree.vertices[4].get_center() - sub12.vertices[12].get_center() + 1*H))
+        self.play(Flash(sub12.vertices[12], color = RED),Flash(starting_tree.vertices[4], color = BLUE))
+        starting_tree.add_subtree(self, sub12, 4)
+
+        self.play(sub9.animate().shift(starting_tree.vertices[13].get_center() - sub9.vertices[9].get_center() + 0.3*DOWN + 2*sh))
+        self.play(Flash(sub9.vertices[9], color = RED),Flash(starting_tree.vertices[13], color = BLUE))
+        starting_tree.add_subtree(self, sub9, 13)
+
+
+        # So let’s quickly double check our formula on the tree from the sample input. 
+        
+        self.play(*[FadeOut(o) for o in self.mobjects])
+        self.wait()
+
+class Solution2(Scene):
+    def construct(self):
+        self.next_section(skip_animations=False)
+        
+
+        sample_tree = Tree(
+            sample_vertices,
+            sample_edges,
+            layout="kamada_kawai",
+            layout_scale=tree_scale,
+            vertex_config={"radius": node_radius, "color": GRAY},  # for debugging
+            labels=False,  # for debugging
+            edge_config={"color": text_color},
+            root = 1
+        )  # .move_to(scene_width/4 * RIGHT)
+
+        W = 2*sh
+        sample_tree.change_layout(
+            {
+                1: ORIGIN,
+                2: H - W,
+                3: H,
+                4: H + W,
+                5: 2 * H - 3 * W / 2,
+                6: 2 * H - W / 2,
+                7: 2 * H + W,
+            }
+        ).move_to( 3 * UP)
+
+        self.play(
+            DrawBorderThenFill(sample_tree)
+        )
+        sample_tree.pretty_colour()
+        self.wait()
+
+        sub2 = sample_tree.remove_subtree(self, 2)
+        self.play(sub2.animate().shift(1*H))
+        
+        sub4 = sample_tree.remove_subtree(self, 4)
+        self.play(sub4.animate().shift(1*H))
+
+        # There are 4 blue nodes and two red, so our formula says that the answer should be 4-1 = 3, because we can hang the buds like this. 
+        
+        blue_nodes = [
+            sub2.vertices[5],
+            sub2.vertices[6],
+            sub4.vertices[7],
+            sample_tree.vertices[3]
+        ]
+        red_nodes = [
+            sub2.vertices[2],
+            sub4.vertices[4]
+        ]
+
+        label_blue = Tex(r"\# blue nodes $= 4$", color = BLUE).move_to(
+            4*LEFT + 2*DOWN
+        )
+        label_red = Tex(r"\# red nodes $= 2$", color = RED).next_to(label_blue, DOWN).align_to(label_blue, LEFT)
+        label_ans = Tex(r"Answer  $= 4 - (2-1) = 3$", color = GRAY).next_to(label_red, DOWN).align_to(label_blue, LEFT)
+
+        self.play(
+            *[
+                Flash(v, color = BLUE) for v in blue_nodes
+            ],
+            FadeIn(label_blue)
+        )
+        self.wait()
+        
+        self.play(
+            *[
+                Flash(v, color = RED) for v in red_nodes
+            ],
+            FadeIn(label_red)
+        )
+        self.wait()
+
+        pos8 = 7
+        pos4 = pos8 + 3
+        blue_num = Tex(r"$4$", color = BLUE).move_to(label_blue[0][-1].get_center())
+        red_num = Tex(r"$2$", color = RED).move_to(label_red[0][-1].get_center())
+
+        self.play(
+            Succession(
+                Write(label_ans[0][0:pos8]),
+                blue_num.animate().move_to(label_ans[0][pos8].get_center()),
+                Write(label_ans[0][pos8+1:pos4]),
+                red_num.animate().move_to(label_ans[0][pos4].get_center()),
+                Write(label_ans[0][pos4+1:]),                
+            )
+        )     
+        
+        self.play(
+            sub4.animate().shift(-1*H)
+        )
+        sample_tree.add_subtree(self, sub4, 1)
+        
+        self.play(
+            sub2.animate().shift(1*H + 4*sh)
+        )
+        sample_tree.add_subtree(self, sub2, 7)
+
+        self.play(
+            *[
+                Flash(sample_tree.vertices[v], color = BLUE) for v in sample_tree.get_leaves()
+            ],
+            FadeIn(label_blue)
+        )
+        self.wait()        
+        
+
+        # Hm, but this is not correct, because in this case the root is kind of forming a bud with this blue node, so we can actually hang the buds like this. 
+        
+        self.play(
+            Circumscribe(
+                Group(sample_tree.vertices[1], sample_tree.vertices[2]),
+                color = RED
+            )
+        )
+        self.wait()
+
+        sample_tree.rehang_subtree(
+            self,
+            4, 
+            3,
+            sample_tree.vertices[3].get_center() + 1*H,
+            2*DOWN,
+            2*DOWN
+        )        
+        
+        # In this way, we fully utilize all the red nodes, so the answer is then just the number of blue - the number of red nodes. 
+
+        #label_ans_new = Tex(r"Answer  $= 4 - (2-1) = 3$", color = GRAY).next_to(label_red, DOWN).align_to(label_blue, LEFT)
+
+        self.play(
+            FadeOut(label_ans[0][pos4-1]),
+            FadeOut(label_ans[0][pos4+1:pos4+4]),
+            red_num.animate().next_to(label_ans[0][pos4-3:pos4-1], RIGHT),
+            Transform(
+                label_ans[0][pos4+4:],
+                Tex("$= 2$", color = GRAY).next_to(red_num, RIGHT, buff = 0.1),
             )
         )
 
-        # Great! So can we always achieve this state where all the red nodes are fully utilized which makes the answer to be the number of blue nodes minus the number of red nodes? 
-        # It took me a while to figure it out but turns out we can! [tohle řešení se tam už někdy před tím objeví v random tazích] The solution I came up with was to start by disassembling the whole tree so that all buds are hanging below the root. 
+        # So we actually need two formulas for the two different cases. 
+        
+        self.play(*[FadeOut(o) for o in self.mobjects])
 
-        sugar(self, example_tree, 2, 1, -2)
-        sugar(self, example_tree, 5, 1, -5)
-        sugar(self, example_tree, 12, 1, 5)
 
-        # Then, we can just stack them on top of each other like this. This way, every red node is covering a different blue node, so we achieve the best possible bound. 
+        example_tree = Tree(
+            example_vertices,
+            example_edges,
+            layout=rooted_position(),
+            layout_scale=tree_scale,
+            vertex_config={"radius": node_radius, "color": GRAY},  # for debugging
+            labels=False,  # for debugging
+            edge_config={"color": text_color},
+            root=1
+        ).shift(3*UP+3*LEFT)
 
-        sugar(self, example_tree, 9, 13, 0)
-        sugar(self, example_tree, 2, 11, 0)
-        sugar(self, example_tree, 5, 4, 0)
-        example_tree.rehang_subtree(
-            self,
-            5,
-            4,
-            example_tree.vertices[4].get_center() + 1 * RIGHT + 0.5 * UP,
-            2 * DOWN,
-            2 * DOWN,
+        sample_tree = Tree(
+            sample_vertices,
+            sample_edges,
+            layout="kamada_kawai",
+            layout_scale=tree_scale,
+            vertex_config={"radius": node_radius, "color": GRAY},  # for debugging
+            labels=False,  # for debugging
+            edge_config={"color": text_color},
+            root = 1
+        )  # .move_to(scene_width/4 * RIGHT)
+
+        W = 2*sh
+        sample_tree.change_layout(
+            {
+                1: ORIGIN,
+                2: H - W,
+                3: H,
+                4: H + W,
+                5: 2 * H - 3 * W / 2,
+                6: 2 * H - W / 2,
+                7: 2 * H + W,
+            }
+        ).move_to( 3 * UP + 3.5*RIGHT)
+
+        label_ans = Tex(r"Answer = \#blue - \#red + 1", color = GRAY).next_to(example_tree, DOWN).shift(0.5*LEFT+ 1*H)
+        label_ans2 = Tex(r"Answer = \#blue - \#red", color = GRAY).next_to(sample_tree, DOWN).align_to(label_ans, DOWN).shift(0.0*RIGHT)
+
+        label_ans[0][7:12].set_color(BLUE)
+        label_ans2[0][7:12].set_color(BLUE)
+        label_ans[0][13:17].set_color(RED)
+        label_ans2[0][13:17].set_color(RED)
+        
+
+        self.play(
+            FadeIn(label_ans),
+            FadeIn(label_ans2),
+            DrawBorderThenFill(example_tree),
+            DrawBorderThenFill(sample_tree)
         )
+        self.wait()
+
+        # decompose the right tree
+
+
+        sub5 = example_tree.remove_subtree(self, 5)
+        sub2 = example_tree.remove_subtree(self, 2)
+        sub12 = example_tree.remove_subtree(self, 12)
+        sub9 = example_tree.remove_subtree(self, 9)
+        
+        h = H/2
+
+        self.play(
+            sub5.animate().shift(1*H + 2*sh + h - 1.0*H - 2*sh),
+            sub9.animate().shift(2*H + 3*sh + h - 1.0*H - 2*sh),
+            sub2.animate().shift(2*H + sh + h - 1.0*H - 2*sh),
+            sub12.animate().shift(h - 1.0*H - 2*sh)
+        )
+        self.wait()
+
+        self.play(Circumscribe(example_tree.vertices[1]), color = RED)
+        self.wait()
+
+        # decompose the right tree
+        subr2 = sample_tree.remove_subtree(self, 2)
+        self.play(subr2.animate().shift(1*H + h))
+        
+        subr4 = sample_tree.remove_subtree(self, 4)
+        self.play(subr4.animate().shift(1*H + h))
+
+        self.play(
+            Circumscribe(Group(sample_tree.vertices[1], sample_tree.vertices[3]), color = RED)
+        )
+        self.wait()
+
+
+
+
+        # Is this solution correct now? Well, there is a simple way to check: we just write the code, submit to codeforces and … nice it works. 
+
+
+        self.wait(10)
 
 
 class Code(Scene):
@@ -1222,6 +1410,7 @@ class Code(Scene):
 
         self.wait()
 
+        return
         self.remove(*self.mobjects)
         self.add(code)
 
@@ -1308,124 +1497,17 @@ class Code(Scene):
 
 class Explore(Scene):
     def construct(self):
-
-        tree_scale = 3
-        node_radius = 0.2
-
         example_tree = Tree(
             example_vertices,
             example_edges,
             layout=rooted_position(),
-            layout_scale=3,
-            vertex_config={"radius": 0.2, "color": GRAY},  # for debugging
+            layout_scale=tree_scale,
+            vertex_config={"radius": node_radius, "color": GRAY},  # for debugging
             labels=False,  # for debugging
             edge_config={"color": text_color},
             root=1
-        ).shift(3 * UP)
+        ).shift(3*UP)
 
         sub5 = example_tree.remove_subtree(self, 5)
         sub2 = example_tree.remove_subtree(self, 2)
         sub5.add_subtree(self, sub2, 8)
-
-        return
-
-        # colour_function = lambda x: forest.pretty_colour(solarized.BLUE, solarized.CYAN)
-
-        example_tree = Tree(
-            example_vertices,
-            example_edges,
-            layout="kamada_kawai",
-            layout_scale=tree_scale,
-            vertex_config={"radius": node_radius, "color": GRAY},
-            labels=False,
-            root=1,
-            edge_config={"color": text_color}
-        )
-        example_tree.change_layout(rooted_position(pos_root=2 * UP))
-        self.add(example_tree)
-        return
-
-        H = 1 * DOWN
-        example_tree.rehang_subtree(
-            self,
-            5,
-            10,
-            example_tree.vertices[10].get_center() + H,
-            1 * DOWN,
-            1 * LEFT + 1 * DOWN,
-        )
-
-        # v_from = 2
-        # v_to = 9
-        # new_pos = 2*LEFT
-        # dir1 = 1*RIGHT
-        # dir2 = 1*RIGHT
-        # scene = self
-
-        # curve = CubicBezier(
-        #     example_tree.vertices[v_from].get_center(),
-        #     example_tree.vertices[v_from].get_center() + dir1,
-        #     new_pos + dir2,
-        #     new_pos,
-        # )
-        # scene.add(curve)
-
-        # subtree = example_tree.remove_subtree(scene, v_from)
-
-        # scene.wait(4)
-
-        # self.play(
-        #     subtree.animate().shift(1*LEFT)
-        # )
-
-        # scene.play(
-        #     MoveAlongPath(subtree, Line(UP, DOWN))
-        # )
-        return
-
-        example_tree.add_subtree(scene, subtree, v_to)
-
-        self.wait()
-
-        return
-        self.wait(2)
-
-        example_tree.pretty_colour()
-        self.wait()
-
-        self.add(example_tree)
-        self.wait()
-
-        subtree = example_tree.remove_subtree(self, 5)
-        subtree.pretty_colour()
-        subtree2 = example_tree.remove_subtree(self, 12)
-        subtree2.pretty_colour()
-        example_tree.pretty_colour()
-        self.wait(1)
-
-        self.play(
-            subtree.animate().shift(2 * LEFT),
-            subtree2.animate().shift(2 * RIGHT)
-        )
-
-        subtree3 = example_tree.remove_subtree(self, 9)
-        subtree3.pretty_colour()
-        subtree4 = example_tree.remove_subtree(self, 2)
-        subtree4.pretty_colour()
-        example_tree.pretty_colour()
-        self.wait(1)
-
-        self.play(
-            subtree3.animate().shift(2 * LEFT),
-            subtree4.animate().shift(2 * RIGHT)
-        )
-
-        example_tree.add_subtree(self, subtree, 1)
-        example_tree.add_subtree(self, subtree2, 1)
-        example_tree.add_subtree(self, subtree3, 8)
-        example_tree.add_subtree(self, subtree4, 6)
-        example_tree.change_colours()
-        example_tree.pretty_colour()
-        self.wait(3)
-
-        return
