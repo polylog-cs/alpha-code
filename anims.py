@@ -2,9 +2,12 @@
 from random import randrange
 from re import I
 from unittest import skip
+from manim import config as global_config
 
 import solarized
 from util import *
+
+
 
 scene_width = 14.2
 tree_scale = 3
