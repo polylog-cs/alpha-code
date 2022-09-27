@@ -27,12 +27,12 @@ void solve(){
     dfs(0, -1, G, is_blue);
 
     int ans = 0;
-    for(int u = 0; u < n; ++u){
+    for(int u = 1; u < n; ++u){
         if(is_blue[u]) ans++;
         else ans--;
     }
-    if(is_blue[0] == 0){
-        ans += 1;
+    if(is_blue[0]){
+        ans++;
     }
     cout << ans << endl;
 }

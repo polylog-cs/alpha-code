@@ -601,6 +601,10 @@ class Solution(Scene):
             ORIGIN,
             color=BLACK
         )
+        self.play(
+            Flash(example_tree.vertices[5], color = RED)
+        )
+        self.wait()
         example_tree.add_object_to_vertex(5, self, circle5, rel_pos_5)
 
         sugar(self, example_tree, 12, 6, 0)
@@ -679,8 +683,8 @@ class Solution(Scene):
         # sugar(self, example_tree, 5, 13, 0)
         # sugar(self, example_tree, 5, 1, -5)
 
-        example_tree.remove_object(2, self)
         example_tree.remove_object(5, self)
+        example_tree.remove_object(2, self)
         example_tree.remove_object(9, self)
         example_tree.remove_object(12, self)
 
@@ -707,7 +711,8 @@ class Solution(Scene):
         example_tree.add_subtree(self, buds[0], 3)
         example_tree.add_subtree(self, buds[2], 2)
         example_tree.add_subtree(self, buds[3], 9)
-
+        self.wait()
+        
         # I claim that I can convert the starting tree into this tree using the rehanging operations. 
 
 
@@ -1067,6 +1072,7 @@ class Solution(Scene):
             sub9.animate().move_to(pos9),
             sub12.animate().move_to(pos12),
         )
+        self.wait()
 
 
         label_blue = Tex(r"\# blue nodes $= 8$", color = BLUE).move_to(
@@ -1247,6 +1253,8 @@ class Solution2(Scene):
             sub2.animate().shift(1*H + 4*sh)
         )
         sample_tree.add_subtree(self, sub2, 7)
+        self.wait()
+
 
         self.play(
             *[
@@ -1261,7 +1269,7 @@ class Solution2(Scene):
         
         self.play(
             Circumscribe(
-                Group(sample_tree.vertices[1], sample_tree.vertices[2]),
+                Group(sample_tree.vertices[1], sample_tree.vertices[3]),
                 color = RED
             )
         )
@@ -1394,34 +1402,28 @@ class Solution2(Scene):
 
 
 
-
-        # Is this solution correct now? Well, there is a simple way to check: we just write the code, submit to codeforces and … nice it works. 
-
-
-        self.wait(10)
-
-
 class Code(Scene):
     def construct(self):
         # Nice! So we have a solution. We simply code a program that first colors the nodes blue and red so that the colors correspond to cutting the buds from our tree one by one. Then we return the number of blue nodes - the number of red nodes as the answer.        
 
-        code = ImageMobject("img/code.png").scale_to_fit_height(8).align_to(Dot().move_to(7.1 * LEFT), LEFT)
+        code = ImageMobject("img/code.png").scale_to_fit_height(8).align_to(Dot(radius=0).move_to(7.1 * LEFT), LEFT)
 
-        dfs_brace = Brace(Line(ORIGIN, 2 * DOWN), RIGHT, color=GRAY).move_to(0.5 * RIGHT + 2.5 * UP)
-        input_brace = Brace(Line(ORIGIN, 1.5 * DOWN), RIGHT, color=GRAY).next_to(dfs_brace, DOWN)
+        dfs_brace = Brace(Line(ORIGIN, 1.6 * DOWN), RIGHT, color=GRAY).move_to(0.5 * RIGHT + 2.5 * UP)
+        input_brace = Brace(Line(ORIGIN, 1.7 * DOWN), RIGHT, color=GRAY).next_to(dfs_brace, DOWN)
         run_brace = Brace(Line(ORIGIN, 0.3 * DOWN), RIGHT, color=GRAY).next_to(input_brace, DOWN)
-        ans_brace = Brace(Line(ORIGIN, 1.0 * DOWN), RIGHT, color=GRAY).next_to(run_brace, DOWN)
-        testcase_brace = Brace(Line(ORIGIN, 1.0 * DOWN), RIGHT, color=GRAY).next_to(ans_brace, DOWN).shift(0.3 * DOWN)
+        ans_brace = Brace(Line(ORIGIN, 0.7 * DOWN), RIGHT, color=GRAY).next_to(run_brace, DOWN)
+        trick_brace = Brace(Line(ORIGIN, 0.5 * DOWN), RIGHT, color=GRAY).next_to(ans_brace, DOWN)
+        testcase_brace = Brace(Line(ORIGIN, 0.9 * DOWN), RIGHT, color=GRAY).next_to(trick_brace, DOWN).shift(0.3 * DOWN)
 
         dfs_text = Group(
-            Tex(r"Compute blue and red nodes; ", color=GRAY).scale(0.5),
+            Tex(r"Give every node a blue or a red color; ", color=GRAY).scale(0.5),
             Tex(r"a node is blue if and only if all children are red. ", color=GRAY).scale(0.5)
         ).arrange(DOWN).next_to(dfs_brace, RIGHT)
         dfs_text[0].align_to(dfs_text[1], LEFT)
         input_text = Tex(r"Read the input. ", color=GRAY).scale(0.5).next_to(input_brace, RIGHT)
-        run_text = Tex(r"Run the blue/red computation.  ", color=GRAY).scale(0.5).next_to(run_brace, RIGHT)
-        ans_text = Tex(r"Compute the number of blue - red nodes. ", color=GRAY).scale(0.5).next_to(ans_brace, RIGHT)
-        trick_text = Tex(r"Even if the root is . ", color=GRAY).scale(0.5).next_to(ans_brace, RIGHT)
+        run_text = Tex(r"Run the red/blue computation.  ", color=GRAY).scale(0.5).next_to(run_brace, RIGHT)
+        ans_text = Tex(r"Compute \# blue - \# red, excluding root. ", color=GRAY).scale(0.5).next_to(ans_brace, RIGHT)
+        trick_text = Tex(r"Add one in case the root is blue. ", color=GRAY).scale(0.5).next_to(trick_brace, RIGHT)
         testcase_text = Tex(r"Solve all testcases. ", color=GRAY).scale(0.5).next_to(testcase_brace, RIGHT)
 
         self.add(
@@ -1430,11 +1432,13 @@ class Code(Scene):
             input_brace,
             run_brace,
             ans_brace,
+            trick_brace,
             testcase_brace,
             dfs_text,
             input_text,
             run_text,
             ans_text,
+            trick_text,
             testcase_text,
         )
 
@@ -1524,6 +1528,9 @@ class Code(Scene):
 
         self.wait(10)
 
+class Thanks(Scene):
+    def construct(self):
+        pass
 
 class Explore(Scene):
     def construct(self):
