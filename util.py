@@ -21,10 +21,14 @@ def random_pop_file():
 
 def random_whoosh_file():
     return f"audio/whoosh/whoosh_{random.randint(0, 3)}.wav"
+
+
 whoosh_gain = -8
+
 
 def random_whoops_file():
     return f"audio/whoops/whoops{random.randint(1, 1)}.mp3"
+
 
 def random_rubik_file():
     return f"audio/cube/r{random.randint(1, 20)}.wav"
@@ -146,7 +150,7 @@ def flatten(lst):
     return [item for sublist in lst for item in sublist]
 
 
-class Forest():
+class Forest:
     trees = {}
     isUpdating = False
     last = 0
@@ -366,8 +370,9 @@ class Tree(Graph):
         Forest.remove(subtree)
         scene.play(
             Create(parent_edge),
-            run_time = 0.2
+            run_time=0.2
         )
+        Forest.isUpdating = False
         scene.remove(parent_edge)
 
         self.add_edges((vertex, subtree.get_root()))
@@ -377,7 +382,7 @@ class Tree(Graph):
         animations = [self[k].animate().set_fill(v) for k, v in self.get_colours().items()]
         scene.play(
             *animations,
-            run_time = 0.2  
+            run_time=0.2
         )
 
         # nothing should happen on the scene
@@ -407,7 +412,7 @@ class Tree(Graph):
             flatten_edges,
             layout=subtree_layout,
             layout_scale=3,  # !
-            vertex_config={"radius": 0.2*self.scale_factor, "color": text_color},
+            vertex_config={"radius": 0.2 * self.scale_factor, "color": text_color},
             labels=False,
             root=vertex,
             scale=self.scale_factor,
@@ -427,19 +432,19 @@ class Tree(Graph):
         # delete the parent edge
         scene.play(
             Uncreate(parent_edge),
-            run_time = 0.2
+            run_time=0.2
         )
         animations = [self[k].animate.set_fill(v) for k, v in self.get_colours_to_set().items()]
 
         if len(animations) > 0:
             scene.play(
                 *animations,
-                run_time = 0.2
+                run_time=0.2
             )
 
         return subtree
 
-    def rehang_subtree(self, scene, v_from, v_to, new_pos, dir1, dir2, shift_horizontal=0, additional_anims = []):
+    def rehang_subtree(self, scene, v_from, v_to, new_pos, dir1, dir2, shift_horizontal=0, additional_anims=[]):
         Forest.isUpdating = True
         root_pos = self.vertices[v_from].get_center()
 
@@ -458,13 +463,12 @@ class Tree(Graph):
         # scene.add(curve)
         curve.shift(subtree.get_center() - root_pos)
 
-        scene.add_sound(random_whoops_file(), time_offset = 0.0)
+        scene.add_sound(random_whoops_file(), time_offset=0.0)
         scene.play(
             MoveAlongPath(subtree, curve),
             self.animate().shift(shift_horizontal),
             *additional_anims,
         )
-        Forest.isUpdating = False
         self.add_subtree(scene, subtree, v_to)
         # scene.remove(curve)
         scene.wait()
@@ -493,7 +497,7 @@ class Tree(Graph):
     def get_leaves(self) -> Set[int]:
         res = set()
         for vertex in self.vertices:
-            if len(self.sons(vertex)) == 0 and vertex != 1: # bad hack
+            if len(self.sons(vertex)) == 0 and vertex != 1:  # bad hack
                 res.add(vertex)
         return res
 
@@ -503,7 +507,7 @@ class Tree(Graph):
         res = set()
 
         for vertex in self.vertices:
-            if vertex not in leaves and vertex != 1 and all( # bad hack
+            if vertex not in leaves and vertex != 1 and all(  # bad hack
                     neighbour in leaves or neighbour == self.parent(vertex) for neighbour in adj[vertex]):
                 res.add(vertex)
         return res
@@ -531,7 +535,8 @@ class Tree(Graph):
         leaves = self.get_leaves()
         buds = self.get_buds()
         for vertex in self.vertices:
-            if self[vertex].get_color().__str__() != solarized.GRAY.__str__() and vertex not in buds and vertex not in leaves:
+            if self[
+                vertex].get_color().__str__() != solarized.GRAY.__str__() and vertex not in buds and vertex not in leaves:
                 colours[vertex] = solarized.GRAY
         for vertex in leaves:
             if self[vertex].get_color().__str__() != leaf_colour.__str__():
