@@ -114,20 +114,20 @@ class Polylog(Scene):
         self.wait()
 
         logo_dalle = ImageMobject("img/D2.png").scale(0.5).set_z_index(100)
-        logo_solarized = ImageMobject("img/logo-solarized.png").scale(0.034).shift(0.3 * UP + 0.05 * LEFT)
+        logo_solarized = ImageMobject("img/logo-solarized.png").scale(0.032).shift(0.3 * UP + 0.05 * LEFT)
         prompts_dalle = [
             Tex(
                 str,
                 color=GRAY
-            ).scale(0.5).next_to(logo_dalle, DOWN)
+            ).scale(0.8).next_to(logo_dalle, DOWN)
             for str in [r"DALL$\cdot$E 2 on the prompt:", r"A logo suitable for a youtube channel about computer science"]
         ]
-        Group(*prompts_dalle).arrange(RIGHT).next_to(logo_dalle, DOWN)
+        Group(*prompts_dalle).arrange(DOWN).next_to(logo_dalle, DOWN)
 
         asterisk = Tex(
             r"*As of 2022, neural nets generating artificial images still struggle with texts inside the images. Probably going to be solved soon. ",
             color=GRAY
-        ).scale(0.3).next_to(Group(*prompts_dalle), DOWN).shift(0.5 * DOWN)
+        ).scale(0.2).next_to(Group(*prompts_dalle), DOWN).shift(0.4 * DOWN)
 
         self.play(
             FadeIn(logo_dalle),
@@ -152,6 +152,7 @@ class Polylog(Scene):
             FadeIn(channel_name[0][0]),
             FadeIn(channel_name[0][2:])
         )
+        self.wait()
         return
 
         self.play(
@@ -164,14 +165,15 @@ class Statement(Scene):
     def construct(self):
         self.next_section(skip_animations=False)
 
-        caption = Tex("Problem", color=GRAY).scale(3)
-        self.play(
-            FadeIn(caption)
-        )
-        self.wait()
-        self.play(
-            FadeOut(caption)
-        )
+        # caption = Tex("Problem", color=GRAY).scale(3)
+        # self.add_sound("audio/gong.wav")
+        # self.play(
+        #     FadeIn(caption)
+        # )
+        # self.wait()
+        # self.play(
+        #     FadeOut(caption)
+        # )
 
         # The problem I’ll be solving is called Buds Re-hanging. In this problem, we are given a tree, so a bunch of nodes connected by edges such that no edges form a cycle. 
 
@@ -223,58 +225,58 @@ class Statement(Scene):
             run_time=1
         )
         self.wait()
-        # example_vertex = example_tree.vertices[2]
-        # self.play(
-        #     example_vertex.animate().set_color(RED)
-        # )
-        # self.wait()
+        example_vertex = example_tree.vertices[2]
+        self.play(
+            example_vertex.animate().set_color(RED)
+        )
+        self.wait()
 
-        # # parent
-        # example_parent = example_tree.vertices[1]
-        # edge_parent = create_arrow_between_nodes(
-        #     example_vertex.get_center(),
-        #     example_parent.get_center(),
-        #     node_radius,
-        #     RED,
-        #     arrow_width
-        # )
-        # self.play(
-        #     Create(edge_parent),
-        # )
-        # self.play(
-        #     Flash(example_parent, color=RED)
-        # )
-        # self.play(
-        #     Uncreate(edge_parent)
-        # )
-        # self.wait()
+        # parent
+        example_parent = example_tree.vertices[1]
+        edge_parent = create_arrow_between_nodes(
+            example_vertex.get_center(),
+            example_parent.get_center(),
+            node_radius,
+            RED,
+            arrow_width
+        )
+        self.play(
+            Create(edge_parent),
+        )
+        self.play(
+            Flash(example_parent, color=RED)
+        )
+        self.play(
+            Uncreate(edge_parent)
+        )
+        self.wait()
 
-        # # children
-        # example_children = [
-        #     example_tree.vertices[3],
-        #     example_tree.vertices[4],
-        #     example_tree.vertices[5],
-        # ]
-        # edge_children = [
-        #     create_arrow_between_nodes(
-        #         example_vertex.get_center(),
-        #         child.get_center(),
-        #         node_radius,
-        #         RED,
-        #         arrow_width
-        #     ) for child in example_children
-        # ]
-        # self.play(
-        #     *[Create(e) for e in edge_children],
-        # )
-        # self.play(
-        #     *[Flash(child, color=RED) for child in example_children]
-        # )
-        # self.play(
-        #     *[Uncreate(e) for e in edge_children],
-        #     example_vertex.animate().set_color(GRAY)
-        # )
-        # self.wait()
+        # children
+        example_children = [
+            example_tree.vertices[3],
+            example_tree.vertices[4],
+            example_tree.vertices[5],
+        ]
+        edge_children = [
+            create_arrow_between_nodes(
+                example_vertex.get_center(),
+                child.get_center(),
+                node_radius,
+                RED,
+                arrow_width
+            ) for child in example_children
+        ]
+        self.play(
+            *[Create(e) for e in edge_children],
+        )
+        self.play(
+            *[Flash(child, color=RED) for child in example_children]
+        )
+        self.play(
+            *[Uncreate(e) for e in edge_children],
+            example_vertex.animate().set_color(GRAY)
+        )
+        self.wait()
 
         # leaves
         self.play(
@@ -378,13 +380,16 @@ class Statement(Scene):
         ).move_to(example_tree.vertices[12].get_center() + (1 * RIGHT + 1 * UP) / 2.0)
         ar3 = ar2.copy().shift(H)
 
+        self.play(
+            AnimationGroup(
+                FadeIn(ar),
+                run_time = 0.2
+            ),
+        )
+
         anims = [
             Succession(
-                AnimationGroup(
-                    FadeIn(ar),
-                    run_time = 0.2
-                ),
-                Wait(0.5),
+                Wait(0.3),
                 AnimationGroup(
                     FadeIn(ar2),
                     FadeIn(ar3),
@@ -537,18 +542,65 @@ class Statement(Scene):
 
         self.wait()
 
+        sugar(self, sample_tree, 2, 4, 2)
+        sugar(self, sample_tree, 2, 3, -2)
+        sugar(self, sample_tree, 4, 1, 1)
+        sugar(self, sample_tree, 2, 1, -1)
+        sugar(self, sample_tree, 2, 3, 0)
+        sugar(self, sample_tree, 4, 5, 0)
+        sugar(self, sample_tree, 4, 3, -2)
+
+        self.wait()
+
+class Statement2(Scene):
+    def construct(self):
+        example_tree = Tree(
+            example_vertices,
+            example_edges,
+            layout=rooted_position(),
+            layout_scale=tree_scale,
+            vertex_config={"radius": node_radius, "color": GRAY},  # for debugging
+            labels=False,  # for debugging
+            edge_config={"color": text_color},
+            root=1
+        ).move_to(scene_width/4 * RIGHT + 1*UP)
+
+
+        self.play(
+            DrawBorderThenFill(example_tree)
+        )
+        example_tree.pretty_colour()
+        num_leaves = Tex(r"\# leaves: ", color=BLUE).move_to(1.5 * RIGHT + 3 * DOWN)
+        num_leaves_counter = Integer(7, color=BLUE).next_to(num_leaves, RIGHT)
+        num_leaves_counter.add_updater(lambda x: x.set_value(Forest.get_leaves_cnt()))
+        self.play(FadeIn(num_leaves), FadeIn(num_leaves_counter))
+        self.wait()
+
+        sugar(self, example_tree, 5, 13, 0)
+        sugar(self, example_tree, 2, 10, 0)
+        sugar(self, example_tree, 5, 1, -2)
+        sugar(self, example_tree, 2, 13, 0)
+        sugar(self, example_tree, 5, 10, 0)
+        sugar(self, example_tree, 2, 1, -2)
+        sugar(self, example_tree, 5, 2, 1)
+
+        self.wait()
+
+
 
 class Solution(Scene):
     def construct(self):
         self.next_section(skip_animations=False)
-        caption = Tex("Solution", color=GRAY).scale(3)
-        self.play(
-            FadeIn(caption)
-        )
-        self.wait()
-        self.play(
-            FadeOut(caption)
-        )
+        # caption = Tex("Solution", color=GRAY).scale(3)
+        # self.add_sound("audio/gong.wav")
+
+        # self.play(
+        #     FadeIn(caption)
+        # )
+        # self.wait()
+        # self.play(
+        #     FadeOut(caption)
+        # )
 
         num_leaves = Tex(r"\# leaves: ", color=BLUE).move_to(5.5 * LEFT + 2 * UP)
         num_leaves_counter = Integer(7, color=BLUE).next_to(num_leaves, RIGHT)
@@ -625,7 +677,6 @@ class Solution(Scene):
 
         # And that holds in general. I realized that I can repeatedly cut the buds from the tree in any order and rehang them below the root, like this. Now I draw my pointy circle around each bud and start doing some random bud-cutting operations. You can see how the nodes in the same circle always stay together. 
 
-        self.next_section(skip_animations=False)
         sugar(self, example_tree, 5, 1, -5)
         sugar(self, example_tree, 12, 1, 5)
 
@@ -682,46 +733,19 @@ class Solution(Scene):
         # sugar(self, example_tree, 5, 4, 0)
         # sugar(self, example_tree, 5, 13, 0)
         # sugar(self, example_tree, 5, 1, -5)
-
+        return 
         example_tree.remove_object(5, self)
         example_tree.remove_object(2, self)
         example_tree.remove_object(9, self)
         example_tree.remove_object(12, self)
 
-        # Ok, so all the rehangings that we do are just shuffling the four buds in some ways and the buds cannot be split. But actually, on the other hand, 
         self.next_section(skip_animations=False)
-
-        # if you take these four buds
-        buds = [
-            example_tree.remove_subtree(self, v)
-            for v in [5, 2, 9, 12]
-        ]
-
-        self.play(
-            buds[0].animate().shift(2 * sh + 2 * H),
-            # buds[1].animate().shift(2*H - sh),
-            buds[2].animate().shift(-2 * sh + H),
-            buds[3].animate().shift(-5 * sh + 3 * sh + 2 * H),
-        )
-        self.wait()
-
-        # and stack them below the root in any configuration, for example like this, 
-
-        example_tree.add_subtree(self, buds[1], 1)
-        example_tree.add_subtree(self, buds[0], 3)
-        example_tree.add_subtree(self, buds[2], 2)
-        example_tree.add_subtree(self, buds[3], 9)
-        self.wait()
+        # Ok, so all the rehangings that we do are just shuffling the four buds in some ways. 
         
-        # I claim that I can convert the starting tree into this tree using the rehanging operations. 
 
-
-        small_tree_scale = 0.3
-        self.play(
-            example_tree.animate().shift(6 * RIGHT + 0 * UP).scale(small_tree_scale)
-        )
-        self.wait()
-
+class Solution2(Scene):
+    def construct(self):        
+        
         starting_tree = Tree(
             example_vertices,
             example_edges,
@@ -730,11 +754,68 @@ class Solution(Scene):
             vertex_config={"radius": node_radius, "color": GRAY},  # for debugging
             labels=False,  # for debugging
             edge_config={"color": text_color},
-            root=1,
-        ).scale(small_tree_scale).move_to(example_tree.get_center()).shift(11.5 * LEFT)
+            root=1
+        ).shift(2 * UP + 4 * LEFT)
 
-        self.play(DrawBorderThenFill(starting_tree))
-        starting_tree.pretty_colour()  # TODO together
+        self.play(
+            DrawBorderThenFill(starting_tree)
+        )
+        starting_tree.pretty_colour()
+
+        # When I understood this, I asked the following question. Let’s say that I take the four buds and stack them below the root in some other configuration, for example like this, to get a new tree. 
+
+        example_tree = starting_tree.copy()
+        self.play(example_tree.animate().shift(8*RIGHT))
+        self.wait()
+        
+        buds = [
+            example_tree.remove_subtree(self, v)
+            for v in [5, 2, 12, 9]
+        ]
+
+        self.play(
+            buds[0].animate().shift(-0 * sh + 1 * H),
+            buds[1].animate().shift(2*H - sh),
+            buds[2].animate().shift(1 * sh + 0*H),
+            buds[3].animate().shift(0 * sh + 2 * H),
+        )
+        self.wait()
+
+        self.play(
+            buds[0].animate().shift(-2 * sh),
+            buds[1].animate().shift(-2*H + sh),
+            buds[2].animate().shift(-1 * sh + 0*H),
+            buds[3].animate().shift(-2 * sh - 1 * H),
+        )
+        self.wait()
+
+
+        example_tree.add_subtree(self, buds[1], 1)
+        example_tree.add_subtree(self, buds[0], 3)
+        example_tree.add_subtree(self, buds[3], 2)
+        example_tree.add_subtree(self, buds[2], 9)
+        self.wait()
+
+        # The question is: Is there always a way to start with the original tree and use my rehanging operations to end up with the new tree? [pauza] Well, it turns out the answer is yes!
+
+        a = Arrow(
+            start = starting_tree.vertices[11].get_center(),
+            end = example_tree.vertices[3].get_center(),
+            color = RED,
+            buff = 1,
+        )
+        a_text = Tex("Rehangings", color = GRAY).next_to(a, UP)
+        self.play(FadeIn(a), FadeIn(a_text))
+        self.wait()
+
+
+        small_tree_scale = 0.3
+        self.play(
+            example_tree.animate().shift(2 * RIGHT ).scale(small_tree_scale),
+            starting_tree.animate().shift(2 * LEFT ).scale(small_tree_scale),
+            FadeOut(a),
+            FadeOut(a_text),
+        )
         self.wait()
 
         self.play(
@@ -886,7 +967,7 @@ class Solution(Scene):
 
         # rubik part
         self.play(
-            *[o.animate().shift(1.5 * UP) for o in
+            *[o.animate().shift(2.5 * UP) for o in
               [a1, a2, a3, a4, a5] + [t1, t2, t3, t4, t5] + [starting_tree, example_tree]]
         )
 
@@ -971,6 +1052,8 @@ class Solution(Scene):
                 starting_tree.add_subtree(self, sub12, 1)
                 starting_tree.add_subtree(self, sub5, 10)
                 starting_tree.add_subtree(self, sub2, 13)
+
+                self.wait()
                 
                 sub5 = starting_tree.remove_subtree(self, 5)
                 sub2 = starting_tree.remove_subtree(self, 2)
@@ -988,6 +1071,8 @@ class Solution(Scene):
                 starting_tree.add_subtree(self, sub5, 1)
                 starting_tree.add_subtree(self, sub12, 1)
                 starting_tree.add_subtree(self, sub9, 13)
+
+                self.wait()
                 
                 sub9 = starting_tree.remove_subtree(self, 9)
                 sub2 = starting_tree.remove_subtree(self, 2)
@@ -1006,6 +1091,8 @@ class Solution(Scene):
                 starting_tree.add_subtree(self, sub2, 6)
                 starting_tree.add_subtree(self, sub12, 7)
                 starting_tree.add_subtree(self, sub9, 8)
+
+                self.wait()
                 
                 sub2 = starting_tree.remove_subtree(self, 2)
                 sub12 = starting_tree.remove_subtree(self, 12)
@@ -1024,11 +1111,10 @@ class Solution(Scene):
         self.next_section(skip_animations=False)
         self.play(
             sub5.animate().shift(-2*H - h - 4*sh),
-            sub2.animate().shift(-h - 2*sh)
+            sub2.animate().shift(-h - 1*sh)
         )
         self.wait()
 
-        # TODO fix
         sub5.add_subtree(self, sub2, 8)
         self.wait(0.3)
         sub2 = sub5.remove_subtree(self, 2)
@@ -1039,7 +1125,7 @@ class Solution(Scene):
 
         # So, if you think about it, the best we can do is to just stack all the buds on top of each other. 
 
-        self.play(starting_tree.animate().shift(-1.5*H))
+        self.play(starting_tree.animate().shift(-1.5*H + 4*sh))
         
         self.play(sub5.animate().shift(starting_tree.vertices[1].get_center() - sub5.vertices[5].get_center() + 1*H))
         starting_tree.add_subtree(self, sub5, 1)
@@ -1064,7 +1150,7 @@ class Solution(Scene):
         sub5 = starting_tree.remove_subtree(self, 5)
         
         for pos in [pos2, pos5, pos9, pos12]:
-            pos += 2*UP
+            pos += 2*UP + 4*sh
 
         self.play(
             sub2.animate().move_to(pos2),
@@ -1153,7 +1239,7 @@ class Solution(Scene):
         self.play(*[FadeOut(o) for o in self.mobjects])
         self.wait()
 
-class Solution2(Scene):
+class Solution3(Scene):
     def construct(self):
         self.next_section(skip_animations=False)
         

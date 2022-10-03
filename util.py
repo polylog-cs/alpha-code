@@ -24,7 +24,7 @@ def random_whoosh_file():
 whoosh_gain = -8
 
 def random_whoops_file():
-    return f"audio/whoosh/whoosh_{random.randint(0, 3)}.wav"
+    return f"audio/whoops/whoops{random.randint(1, 1)}.mp3"
 
 def random_rubik_file():
     return f"audio/cube/r{random.randint(1, 20)}.wav"
@@ -437,7 +437,6 @@ class Tree(Graph):
                 run_time = 0.2
             )
 
-        scene.wait()
         return subtree
 
     def rehang_subtree(self, scene, v_from, v_to, new_pos, dir1, dir2, shift_horizontal=0, additional_anims = []):
