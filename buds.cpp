@@ -1,15 +1,15 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-void dfs(int u, int parent, vector<vector<int> > &G, vector<bool> &is_blue){
-    int blue = true;
+void dfs(int u, int parent, vector<vector<int> > &G, vector<bool> &colors){
+    bool is_blue = true;
     for(int v : G[u]){
         if(v != parent){
-            dfs(v, u, G, is_blue);
-            if(is_blue[v]) blue = false;
+            dfs(v, u, G, colors);
+            if(colors[v]) is_blue = false;
         }
     }
-    is_blue[u] = blue;
+    colors[u] = is_blue;
 }
 
 void solve(){
@@ -23,15 +23,15 @@ void solve(){
         G[u].push_back(v), G[v].push_back(u);
     }
 
-    vector<bool> is_blue(n);
-    dfs(0, -1, G, is_blue);
+    vector<bool> colors(n);
+    dfs(0, -1, G, colors);
 
     int ans = 0;
     for(int u = 1; u < n; ++u){
-        if(is_blue[u]) ans++;
+        if(colors[u]) ans++;
         else ans--;
     }
-    if(is_blue[0]){
+    if(colors[0]){
         ans++;
     }
     cout << ans << endl;
