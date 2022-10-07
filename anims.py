@@ -35,6 +35,9 @@ def sugar(scene, tree, n1, n2, n_sh):
         2 * DOWN,
     )
 
+class Blank(Scene):
+    def construct(self):
+        return
 
 class Intro(Scene):
     def construct(self):
